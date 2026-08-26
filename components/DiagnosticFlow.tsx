@@ -1,0 +1,545 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, CalendarClock, CheckCircle2, Loader2, Route, ShieldCheck } from "lucide-react";
+import { ScoreBreakdown } from "@/components/ScoreBreakdown";
+import type { Domain, Role, ScoreBreakdown as ScoreBreakdownType } from "@/lib/types";
+
+type Question = {
+  id: string;
+  skillId: string;
+  difficulty: string;
+  prompt: string;
+  options: string[];
+};
+
+type Answer = { questionId: string; selectedIndex: number };
+
+type Recommendation = {
+  resource: { id: string; title: string; provider: string; url: string; costType: string };
+  score: ScoreBreakdownType;
+  explanation: { whatGapItCloses: string; estimatedTime: string; evidenceArtifact: string };
+};
+
+type Roadmap = {
+  roadmap: {
+    role: { title: string };
+    readiness: number;
+    gaps: Array<{ skill: { id: string; name: string }; currentMastery: number; reason: string }>;
+    mastered: Array<{ skill: { id: string; name: string } }>;
+  };
+  recommendations: Recommendation[];
+};
+
+type WeeklyPlan = {
+  outcome: { action: string; message: string; delayedSkillIds: string[]; remediation: { title: string } | null } | null;
+  plan: {
+    weeklyHours: number;
+    minutesPlanned: number;
+    included: Array<{ gapSkillId: string; recommendation: Recommendation }>;
+    deferred: Array<{ gapSkillId: string; gapSkillName: string; reason: string }>;
+  };
+};
+
+
+
+// The client never learns the right answer, so it sends the option index and
+// the server decides correctness.
+const PREFERENCES = { maxHoursPerStep: 2, cost: "free", format: "lab" } as const;
+const WEEKLY_HOURS = 8;
+
+export function DiagnosticFlow({
+  roles,
+  domains,
+  defaultRoleId,
+  canPersist
+}: {
+  roles: Role[];
+  domains: Domain[];
+  defaultRoleId: string | null;
+  canPersist: boolean;
+}) {
+  const [roleId, setRoleId] = useState<string | null>(null);
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [progress, setProgress] = useState({ answered: 0, max: 15 });
+  const [result, setResult] = useState<Roadmap | null>(null);
+  const [mastery, setMastery] = useState<Record<string, number>>({});
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function advance(nextRoleId: string, nextAnswers: Answer[]) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/diagnostic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetRoleId: nextRoleId, answers: nextAnswers, persist: canPersist })
+      });
+      if (!res.ok) throw new Error("Could not load the next question.");
+      const data = await res.json();
+      setProgress(data.progress);
+
+      if (!data.done) {
+        setQuestion(data.question);
+        return;
+      }
+
+      const roadmapRes = await fetch("/api/roadmap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          targetRoleId: nextRoleId,
+          weeklyHours: WEEKLY_HOURS,
+          preferences: PREFERENCES,
+          mastery: data.mastery
+        })
+      });
+      if (!roadmapRes.ok) throw new Error("Could not build the roadmap.");
+
+      setQuestion(null);
+      setMastery(data.mastery);
+      setResult(await roadmapRes.json());
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function start(nextRoleId: string) {
+    setRoleId(nextRoleId);
+    setAnswers([]);
+    setResult(null);
+    void advance(nextRoleId, []);
+  }
+
+  function answer(selectedIndex: number) {
+    if (!question || !roleId) return;
+    const next = [...answers, { questionId: question.id, selectedIndex }];
+    setAnswers(next);
+    void advance(roleId, next);
+  }
+
+  function restart() {
+    setRoleId(null);
+    setQuestion(null);
+    setAnswers([]);
+    setResult(null);
+    setError(null);
+  }
+
+  return (
+    <main className="min-h-screen bg-canvas">
+      <section className="border-b border-border bg-white">
+        <div className="mx-auto max-w-4xl px-6 py-8">
+          <Link className="inline-flex items-center gap-2 text-sm text-muted hover:text-ink" href="/">
+            <ArrowLeft aria-hidden="true" size={16} />
+            Back to dashboard
+          </Link>
+          <h1 className="mt-4 text-3xl font-semibold text-ink">Adaptive diagnostic</h1>
+          <p className="mt-2 max-w-2xl text-base leading-7 text-muted">
+            Answer up to 15 questions. Each skill starts at intermediate and branches harder or
+            easier based on your answer, so the estimate lands faster than a fixed quiz.
+          </p>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-4xl px-6 py-8">
+        {error && (
+          <p className="mb-6 rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-800" role="alert">
+            {error}
+          </p>
+        )}
+
+        {!roleId && <RolePicker defaultRoleId={defaultRoleId} domains={domains} onPick={start} roles={roles} />}
+
+        {roleId && question && (
+          // key remounts the card per question so the previous pick never carries over.
+          <QuestionCard busy={busy} key={question.id} onAnswer={answer} progress={progress} question={question} />
+        )}
+
+        {busy && !question && !result && (
+          <p className="flex items-center gap-2 text-muted">
+            <Loader2 aria-hidden="true" className="animate-spin" size={18} />
+            Scoring your answers…
+          </p>
+        )}
+
+        {result && roleId && (
+          <Results mastery={mastery} onRestart={restart} result={result} roleId={roleId} />
+        )}
+      </div>
+    </main>
+  );
+}
+
+function WeekPlanner({ mastery, roleId }: { mastery: Record<string, number>; roleId: string }) {
+  const [hours, setHours] = useState(8);
+  const [failedQuiz, setFailedQuiz] = useState(false);
+  const [data, setData] = useState<WeeklyPlan | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function replan(nextHours: number, nextFailedQuiz: boolean) {
+    setBusy(true);
+    setHours(nextHours);
+    setFailedQuiz(nextFailedQuiz);
+
+    // The first gap is what a failed quiz would realistically be about.
+    const weakestSkill = Object.entries(mastery).sort((a, b) => a[1] - b[1])[0]?.[0];
+
+    const res = await fetch("/api/replan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        targetRoleId: roleId,
+        weeklyHours: nextHours,
+        preferences: PREFERENCES,
+        mastery,
+        ...(nextFailedQuiz && weakestSkill
+          ? { assessment: { skillId: weakestSkill, score: 0.4 } }
+          : {})
+      })
+    });
+    setData(res.ok ? await res.json() : null);
+    setBusy(false);
+  }
+
+  return (
+    <article className="rounded-lg border border-border bg-white p-6">
+      <div className="flex items-center gap-2">
+        <CalendarClock aria-hidden="true" className="text-teal" size={20} />
+        <h2 className="text-lg font-semibold">Plan this week</h2>
+      </div>
+      <p className="mt-2 text-sm text-muted">
+        Change the available hours and the plan re-fits: the critical path is kept, shorter
+        alternatives are substituted, and the rest is deferred with a reason.
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {[8, 5, 2].map((option) => (
+          <button
+            className={`h-9 rounded-md border px-3 text-sm font-medium ${
+              data && hours === option ? "border-teal bg-teal/5 text-teal" : "border-border hover:border-teal"
+            }`}
+            disabled={busy}
+            key={option}
+            onClick={() => void replan(option, failedQuiz)}
+            type="button"
+          >
+            {option} hours
+          </button>
+        ))}
+        <button
+          className={`h-9 rounded-md border px-3 text-sm font-medium ${
+            failedQuiz ? "border-teal bg-teal/5 text-teal" : "border-border hover:border-teal"
+          }`}
+          disabled={busy}
+          onClick={() => void replan(hours, !failedQuiz)}
+          type="button"
+        >
+          {failedQuiz ? "✓ " : ""}Simulate a failed quiz
+        </button>
+      </div>
+
+      {busy && <p className="mt-4 text-sm text-muted">Replanning…</p>}
+
+      {data && !busy && (
+        <div className="mt-5 space-y-4">
+          {data.outcome && (
+            <div className="rounded-md border border-amber-300 bg-amber-50 p-4">
+              <p className="text-sm font-medium text-amber-900">{data.outcome.message}</p>
+              {data.outcome.remediation && (
+                <p className="mt-1 text-sm text-amber-800">
+                  Inserted remediation: {data.outcome.remediation.title}
+                </p>
+              )}
+              {data.outcome.delayedSkillIds.length > 0 && (
+                <p className="mt-1 text-sm text-amber-800">
+                  Delayed downstream: {data.outcome.delayedSkillIds.join(", ")}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <h3 className="text-sm font-semibold text-ink">
+              This week · {data.plan.minutesPlanned} of {data.plan.weeklyHours * 60} min planned
+            </h3>
+            <ul className="mt-2 space-y-2">
+              {data.plan.included.map((item) => (
+                <li
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border p-3 text-sm"
+                  key={item.gapSkillId}
+                >
+                  <span className="font-medium text-ink">{item.recommendation.resource.title}</span>
+                  <span className="text-muted">
+                    {item.gapSkillId} · {item.recommendation.explanation.estimatedTime}
+                  </span>
+                </li>
+              ))}
+              {data.plan.included.length === 0 && (
+                <li className="text-sm text-muted">Nothing fits this week — even the shortest option is too long.</li>
+              )}
+            </ul>
+          </div>
+
+          {data.plan.deferred.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Deferred</h3>
+              <ul className="mt-2 space-y-2">
+                {data.plan.deferred.map((item) => (
+                  <li className="rounded-md border border-dashed border-border p-3 text-sm" key={item.gapSkillId}>
+                    <span className="font-medium text-ink">{item.gapSkillName}</span>
+                    <span className="ml-2 text-muted">{item.reason}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!data && !busy && (
+        <button
+          className="mt-4 inline-flex h-10 items-center rounded-md bg-teal px-4 text-sm font-semibold text-white hover:bg-teal-strong"
+          onClick={() => void replan(hours, false)}
+          type="button"
+        >
+          Plan my week
+        </button>
+      )}
+    </article>
+  );
+}
+
+function RolePicker({
+  defaultRoleId,
+  domains,
+  onPick,
+  roles
+}: {
+  defaultRoleId: string | null;
+  domains: Domain[];
+  onPick: (roleId: string) => void;
+  roles: Role[];
+}) {
+  // The learner's saved target role leads, and its domain leads the list — the
+  // rest stay one click away rather than being filtered out.
+  const rank = (domainId: string) =>
+    Number(roles.some((role) => role.domainId === domainId && role.id === defaultRoleId));
+  const ordered = [...domains].sort((a, b) => rank(b.id) - rank(a.id));
+
+  return (
+    <section>
+      <h2 className="text-lg font-semibold text-ink">Pick a target role</h2>
+      {ordered.map((domain) => {
+        const inDomain = roles.filter((role) => role.domainId === domain.id);
+        if (inDomain.length === 0) {
+          return null;
+        }
+
+        return (
+          <div className="mt-6" key={domain.id}>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-teal">{domain.name}</h3>
+            <p className="mt-1 text-sm text-muted">{domain.description}</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {inDomain.map((role) => (
+                <button
+                  className={`rounded-lg border bg-white p-5 text-left font-medium hover:border-teal hover:text-teal ${
+                    role.id === defaultRoleId ? "border-teal text-teal" : "border-border"
+                  }`}
+                  key={role.id}
+                  onClick={() => onPick(role.id)}
+                  type="button"
+                >
+                  {role.title}
+                  {role.id === defaultRoleId && (
+                    <span className="mt-1 block text-xs font-normal text-muted">Your target role</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+function QuestionCard({
+  busy,
+  onAnswer,
+  progress,
+  question
+}: {
+  busy: boolean;
+  onAnswer: (selectedIndex: number) => void;
+  progress: { answered: number; max: number };
+  question: Question;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+
+  return (
+    <section>
+      <div className="flex items-center justify-between text-sm text-muted">
+        <span>
+          Question {progress.answered + 1} of at most {progress.max}
+        </span>
+        <span className="rounded-md bg-white px-2 py-1 font-medium">
+          {question.skillId} · {question.difficulty}
+        </span>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+        <div
+          className="h-full bg-teal transition-all"
+          style={{ width: `${(progress.answered / progress.max) * 100}%` }}
+        />
+      </div>
+
+      <article className="mt-5 rounded-lg border border-border bg-white p-6">
+        <h2 className="text-xl font-semibold text-ink">{question.prompt}</h2>
+        <div className="mt-5 space-y-3">
+          {question.options.map((option, index) => (
+            <button
+              className={`w-full rounded-md border p-4 text-left text-sm transition-colors ${
+                picked === index ? "border-teal bg-teal/5 text-teal" : "border-border hover:border-teal"
+              }`}
+              disabled={busy}
+              key={option}
+              onClick={() => setPicked(index)}
+              type="button"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+
+        {/* Grading happens server-side — the page never receives the answer key. */}
+        <div className="mt-6 flex items-center gap-3 border-t border-border pt-5">
+          <button
+            className="inline-flex h-10 items-center rounded-md bg-teal px-4 text-sm font-semibold text-white hover:bg-teal-strong disabled:opacity-50"
+            disabled={busy || picked === null}
+            onClick={() => picked !== null && onAnswer(picked)}
+            type="button"
+          >
+            {busy ? "Checking…" : "Submit answer"}
+          </button>
+          <button
+            className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline disabled:opacity-50"
+            disabled={busy}
+            onClick={() => onAnswer(-1)}
+            type="button"
+          >
+            Skip — I don&apos;t know
+          </button>
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function Results({
+  mastery,
+  onRestart,
+  result,
+  roleId
+}: {
+  mastery: Record<string, number>;
+  onRestart: () => void;
+  result: Roadmap;
+  roleId: string;
+}) {
+  const { roadmap, recommendations } = result;
+
+  return (
+    <section className="space-y-6">
+      <div className="flex flex-col gap-4 rounded-lg border border-border bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-ink">{roadmap.role.title} readiness</h2>
+          <p className="mt-1 text-sm text-muted">
+            {roadmap.mastered.length} skill{roadmap.mastered.length === 1 ? "" : "s"} already evidenced ·{" "}
+            {roadmap.gaps.length} to close
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <ShieldCheck aria-hidden="true" className="text-teal" size={30} />
+          <span className="text-3xl font-semibold">{Math.round(roadmap.readiness * 100)}%</span>
+        </div>
+      </div>
+
+      <article className="rounded-lg border border-border bg-white p-6">
+        <div className="flex items-center gap-2">
+          <Route aria-hidden="true" className="text-teal" size={20} />
+          <h2 className="text-lg font-semibold">Prerequisite-valid order</h2>
+        </div>
+        <ol className="mt-4 space-y-3">
+          {roadmap.gaps.map((gap, index) => (
+            <li className="flex gap-3 rounded-md border border-border p-4" key={gap.skill.id}>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-canvas text-xs font-semibold">
+                {index + 1}
+              </span>
+              <div>
+                <h3 className="font-semibold">{gap.skill.name}</h3>
+                <p className="mt-1 text-sm text-muted">{gap.reason}</p>
+              </div>
+              <span className="ml-auto shrink-0 self-start rounded-md bg-canvas px-2 py-1 text-sm font-medium">
+                {Math.round(gap.currentMastery * 100)}%
+              </span>
+            </li>
+          ))}
+        </ol>
+      </article>
+
+      <article className="rounded-lg border border-border bg-white p-6">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 aria-hidden="true" className="text-teal" size={20} />
+          <h2 className="text-lg font-semibold">Why recommended</h2>
+        </div>
+        {recommendations.length === 0 && (
+          <p className="mt-4 text-sm text-muted">
+            No resource clears the prerequisite gate for your top gap yet — close an earlier skill first.
+          </p>
+        )}
+        {recommendations.slice(0, 3).map((item) => (
+          <div className="mt-5 border-t border-border pt-5 first:border-t-0 first:pt-0" key={item.resource.id}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">{item.resource.title}</h3>
+                <p className="mt-1 text-sm text-muted">
+                  {item.resource.provider} · {item.explanation.estimatedTime} · {item.resource.costType} ·
+                  produces {item.explanation.evidenceArtifact}
+                </p>
+              </div>
+              <a
+                className="inline-flex h-10 shrink-0 items-center rounded-md bg-teal px-4 text-sm font-semibold text-white hover:bg-teal-strong"
+                href={item.resource.url}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open
+              </a>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-muted">{item.explanation.whatGapItCloses}</p>
+            <div className="mt-4">
+              <ScoreBreakdown score={item.score} />
+            </div>
+          </div>
+        ))}
+      </article>
+
+      <WeekPlanner mastery={mastery} roleId={roleId} />
+
+      <button
+        className="inline-flex h-10 items-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+        onClick={onRestart}
+        type="button"
+      >
+        Run another diagnostic
+      </button>
+    </section>
+  );
+}
