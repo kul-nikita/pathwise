@@ -13,11 +13,36 @@ const DB_NAME = process.env.MONGODB_DB ?? "skillforge";
  */
 const DNS_SERVERS = (process.env.DNS_SERVERS ?? "8.8.8.8,1.1.1.1").split(",").map((s) => s.trim());
 
+/**
+ * Each serverless instance keeps its own pool, so a large pool multiplied by
+ * many concurrent instances can exhaust an Atlas free-tier connection limit.
+ */
+const MAX_POOL_SIZE = Number(process.env.MONGODB_MAX_POOL_SIZE ?? 10);
+
+/**
+ * Returns the original `mongodb+srv://` URI when explicit resolution is not
+ * possible, letting the driver do its own SRV lookup. Serverless sandboxes
+ * (Vercel) may block outbound DNS to a public resolver, and there the platform
+ * resolver works fine — so the workaround must never be the only path.
+ */
 async function resolveSrvUri(uri: string): Promise<string> {
   if (!uri.startsWith("mongodb+srv://")) {
     return uri;
   }
 
+  try {
+    return await resolveSrvViaExplicitDns(uri);
+  } catch (error) {
+    console.warn(
+      `[mongo] explicit SRV resolution failed (${
+        error instanceof Error ? error.message : error
+      }); falling back to the driver's own SRV lookup.`
+    );
+    return uri;
+  }
+}
+
+async function resolveSrvViaExplicitDns(uri: string): Promise<string> {
   const url = new URL(uri);
   const srvHost = url.hostname;
   const resolver = new Resolver();
@@ -64,7 +89,7 @@ export async function getMongoClient() {
 
   // Share one in-flight connect across concurrent route handlers and reloads.
   globalForMongo.__mongoConnecting ??= resolveSrvUri(uri).then((resolved) =>
-    new MongoClient(resolved, { maxPoolSize: 20 }).connect()
+    new MongoClient(resolved, { maxPoolSize: MAX_POOL_SIZE }).connect()
   );
 
   try {
