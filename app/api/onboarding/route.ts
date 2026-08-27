@@ -43,9 +43,33 @@ export async function POST(request: Request) {
 
 const confirmSchema = z.object({
   targetRoleId: z.string().min(1),
+
+  careerObjective: z.string().min(1),
+
+  experienceLevel: z.enum([
+    "beginner",
+    "intermediate",
+    "advanced"
+  ]),
+
+  currentSkills: z.array(z.string()),
+  interests: z.array(z.string()),
+  learningHistory: z.array(z.string()),
+  preferredTechnologies: z.array(z.string()),
+
+  learningStyle: z.enum([
+    "hands-on",
+    "visual",
+    "reading",
+    "mixed",
+    "unknown"
+  ]),
+
   timelineWeeks: z.number().int().min(1).max(52),
   weeklyHours: z.number().min(1).max(60),
+
   preferences: preferencesSchema,
+
   consentGiven: z.boolean()
 });
 

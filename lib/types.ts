@@ -64,12 +64,35 @@ export type LearnerPreferences = {
   format: ResourceType | "any";
 };
 
+export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
+
+export type LearningStyle =
+  | "hands-on"
+  | "visual"
+  | "reading"
+  | "mixed"
+  | "unknown";
+
 export type LearnerProfile = {
   learnerId: string;
+
+  // Career direction
   targetRoleId: string;
+  careerObjective: string;
+
+  // AI-extracted learner information
+  experienceLevel: ExperienceLevel;
+  currentSkills: string[];
+  interests: string[];
+  learningHistory: string[];
+  preferredTechnologies: string[];
+  learningStyle: LearningStyle;
+
+  // Planning constraints
   timelineWeeks: number;
   weeklyHours: number;
   preferences: LearnerPreferences;
+
   consentGiven: boolean;
   createdAt: string;
   updatedAt: string;
