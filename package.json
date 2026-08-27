@@ -1,0 +1,39 @@
+{
+  "name": "skillforge-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "graph:seed": "tsx --env-file=.env seed/graph/seed.ts",
+    "mongo:seed": "tsx --env-file=.env seed/mongo/seed.ts",
+    "vector:index": "tsx --env-file=.env seed/vector/index.ts",
+    "graph:verify": "tsx --env-file=.env scripts/verify-gate.ts",
+    "db:seed:all": "npm run graph:seed && npm run mongo:seed && npm run vector:index"
+  },
+  "dependencies": {
+    "@qdrant/js-client-rest": "^1.12.0",
+    "lucide-react": "^0.468.0",
+    "mongodb": "^6.11.0",
+    "neo4j-driver": "^5.27.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "^15.1.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,3 +1,16 @@
+<<<<<<< HEAD
+.next
+node_modules
+dist
+coverage
+.env
+.env.local
+*.log
+tsconfig.tsbuildinfo
+
+.vercel
+.env*
+=======
 # Python
 __pycache__/
 *.py[cod]
@@ -56,3 +69,4 @@ logs/
 
 # Chroma
 chroma_data/
+>>>>>>> main
