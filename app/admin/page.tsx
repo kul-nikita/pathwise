@@ -4,13 +4,14 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { AdminCatalog } from "@/components/AdminCatalog";
 import { requireUserOrRedirect } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
+import { SiteHeader } from "@/components/SiteHeader";
 import { listResources } from "@/lib/db/resources";
 import { getSkillGraph } from "@/lib/graph/queries";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Catalog admin · SkillForge"
+  title: "Catalog admin"
 };
 
 export default async function AdminPage() {
@@ -26,15 +27,10 @@ export default async function AdminPage() {
   const [resources, graph] = await Promise.all([listResources(), getSkillGraph()]);
 
   return (
-    <main className="min-h-screen bg-canvas">
+    <>
+      <SiteHeader current="/admin" showAdmin user={user} />
+      <main className="min-h-screen bg-canvas" id="main">
       <div className="mx-auto max-w-7xl px-6 py-10">
-        <Link
-          className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-ink"
-          href="/dashboard"
-        >
-          <ArrowLeft aria-hidden="true" size={15} />
-          Back to dashboard
-        </Link>
 
         <div className="mt-4 flex items-center gap-2">
           <ShieldCheck aria-hidden="true" className="text-teal" size={22} />
@@ -55,5 +51,6 @@ export default async function AdminPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

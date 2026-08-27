@@ -10,10 +10,11 @@ import { listDomains, listRoles } from "@/lib/graph/queries";
 import { DEFAULT_PREFERENCES, DEFAULT_WEEKLY_HOURS } from "@/lib/constants";
 import { requireUserOrRedirect } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Dashboard · SkillForge" };
+export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const user = await requireUserOrRedirect("/dashboard");
@@ -50,7 +51,9 @@ export default async function DashboardPage() {
     : [];
 
   return (
-    <main className="min-h-screen bg-canvas">
+    <>
+      <SiteHeader current="/dashboard" showAdmin={isAdmin(user)} user={user} />
+      <main className="min-h-screen bg-canvas" id="main">
       <section className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
@@ -197,5 +200,6 @@ export default async function DashboardPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

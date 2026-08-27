@@ -5,11 +5,13 @@ import { listEvidence } from "@/lib/db/learners";
 import { findResourcesByIds } from "@/lib/db/resources";
 import { getSkillGraph } from "@/lib/graph/queries";
 import { requireUserOrRedirect } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/auth/admin";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Evidence wallet · SkillForge"
+  title: "Evidence wallet"
 };
 
 export default async function EvidencePage() {
@@ -25,16 +27,14 @@ export default async function EvidencePage() {
   const averageScore = evidence.reduce((sum, item) => sum + item.rubricScore, 0) / (evidence.length || 1);
 
   return (
-    <main className="min-h-screen bg-canvas">
+    <>
+      <SiteHeader current="/evidence" showAdmin={isAdmin(user)} user={user} />
+      <main className="min-h-screen bg-canvas" id="main">
       <section className="border-b border-border bg-white">
         <div className="mx-auto max-w-4xl px-6 py-8">
-          <Link className="inline-flex items-center gap-2 text-sm text-muted hover:text-ink" href="/dashboard">
-            <ArrowLeft aria-hidden="true" size={16} />
-            Back to dashboard
-          </Link>
-          <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+            <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-semibold text-ink">Evidence wallet</h1>
+              <h1 className="font-display text-3xl tracking-tight font-semibold text-ink">Evidence wallet</h1>
               <p className="mt-2 max-w-2xl text-base leading-7 text-muted">
                 Every completed milestone produces a verifiable capability record — what was done, how
                 it was scored, and which specific skills it demonstrates.
@@ -72,5 +72,6 @@ export default async function EvidencePage() {
         ))}
       </div>
     </main>
+    </>
   );
 }

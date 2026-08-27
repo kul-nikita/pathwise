@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Award, GitBranch, Gauge, Search } from "lucide-react";
-import { listDomains, listRoles } from "@/lib/graph/queries";
+import { listDomains, listRoles, getSkillGraph } from "@/lib/graph/queries";
+import { PrerequisiteChain, pickChain } from "@/components/PrerequisiteChain";
+import { getCurrentUser } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/auth/admin";
+import { SiteHeader } from "@/components/SiteHeader";
+import { button } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -28,52 +33,41 @@ const PILLARS = [
 ];
 
 export default async function LandingPage() {
-  const [domains, roles] = await Promise.all([listDomains(), listRoles()]);
+  const [domains, roles, user, graph] = await Promise.all([
+    listDomains(),
+    listRoles(),
+    getCurrentUser(),
+    getSkillGraph()
+  ]);
+  const chain = pickChain(graph.skills);
   const domainName = new Map(domains.map((domain) => [domain.id, domain.name]));
 
   return (
-    <main className="min-h-screen bg-canvas">
-      <header className="border-b border-border bg-white">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-lg font-semibold tracking-tight text-ink">SkillForge</span>
-          <div className="flex items-center gap-3">
-            <Link className="text-sm font-medium text-muted hover:text-ink" href="/dashboard">
-              Dashboard
-            </Link>
-            <Link
-              className="inline-flex h-9 items-center rounded-md bg-teal px-4 text-sm font-semibold text-white hover:bg-teal-strong"
-              href="/onboarding"
-            >
-              Get started
-            </Link>
-          </div>
-        </nav>
-      </header>
+    <main className="min-h-screen bg-canvas" id="main">
+      <SiteHeader showAdmin={isAdmin(user)} user={user} />
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-ink md:text-6xl">
-            Know what to learn next — and be able to prove you learned it.
-          </h1>
-          <p className="mt-6 text-lg leading-8 text-muted">
-            Tell SkillForge the role you are aiming for. It maps what you already know, finds the gaps,
-            orders them so nothing is taught out of sequence, and turns every finished step into
-            portfolio evidence.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              className="inline-flex h-11 items-center rounded-md bg-teal px-6 text-sm font-semibold text-white hover:bg-teal-strong"
-              href="/onboarding"
-            >
-              Build my learning path
-            </Link>
-            <Link
-              className="inline-flex h-11 items-center rounded-md border border-border bg-white px-6 text-sm font-semibold hover:border-teal"
-              href="/diagnostic"
-            >
-              Take the diagnostic
-            </Link>
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <div>
+            <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink md:text-6xl">
+              Know what to learn next — and be able to prove you learned it.
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-muted">
+              Tell SkillForge the role you are aiming for. It maps what you already know, finds the
+              gaps, orders them so nothing is taught out of sequence, and turns every finished step
+              into portfolio evidence.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link className={`${button.primary} h-11 px-6`} href="/onboarding">
+                Build my learning path
+              </Link>
+              <Link className={`${button.secondary} h-11 px-6`} href="/diagnostic">
+                Take the diagnostic
+              </Link>
+            </div>
           </div>
+
+          <PrerequisiteChain chain={chain} />
         </div>
       </section>
 
