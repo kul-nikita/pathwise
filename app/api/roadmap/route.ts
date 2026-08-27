@@ -3,14 +3,17 @@ import { z } from "zod";
 import { buildRoadmap, candidatesForGap } from "@/lib/services/recommendations";
 import { preferencesSchema } from "@/lib/db/schemas";
 import { requireUser } from "@/lib/auth/session";
-import { getMastery } from "@/lib/db/learners";
+import { getMastery, getProfile } from "@/lib/db/learners";
 
 export const dynamic = "force-dynamic";
 
 const requestSchema = z.object({
   targetRoleId: z.string().min(1),
-  preferences: preferencesSchema,
-  weeklyHours: z.number().min(1).max(60).default(10),
+  // Preferences and weekly hours are optional for the same reason mastery is:
+  // the learner already stated them during onboarding, so requiring them in the
+  // body meant a caller who omitted them got a 400 instead of their own plan.
+  preferences: preferencesSchema.optional(),
+  weeklyHours: z.number().min(1).max(60).optional(),
   // Optional: the diagnostic passes the mastery it just derived, which may not
   // be persisted yet when the learner has not consented. Omitting it falls back
   // to the signed-in learner's stored mastery rather than silently assuming
@@ -32,10 +35,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { targetRoleId, preferences, weeklyHours } = parsed.data;
+  const { targetRoleId } = parsed.data;
 
   try {
+    const profile = await getProfile(user.id);
     const mastery = parsed.data.mastery ?? (await getMastery(user.id));
+    const preferences = parsed.data.preferences ??
+      profile?.preferences ?? { maxHoursPerStep: 3, cost: "any" as const, format: "any" as const };
+    const weeklyHours = parsed.data.weeklyHours ?? profile?.weeklyHours ?? 10;
     const roadmap = await buildRoadmap(targetRoleId, mastery);
     // The first gap whose own prerequisites are already met.
     const firstUnlockedGap =

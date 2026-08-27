@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CalendarClock, CheckCircle2, Loader2, Route, ShieldCheck } from "lucide-react";
+import { CompleteResource } from "@/components/CompleteResource";
 import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 import type { Domain, Role, ScoreBreakdown as ScoreBreakdownType } from "@/lib/types";
 
@@ -527,6 +528,7 @@ function Results({
             <div className="mt-4">
               <ScoreBreakdown score={item.score} />
             </div>
+            <CompleteResource resourceId={item.resource.id} />
           </div>
         ))}
       </article>

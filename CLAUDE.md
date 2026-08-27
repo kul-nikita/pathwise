@@ -238,6 +238,28 @@ when nothing read them at runtime. Current truth, verified:
   and the LLM's role enum all read from Neo4j, so they pick up new domains on
   their own.
 
+- **The learn -> prove loop is closed.** `POST /api/complete` is the write path
+  that was missing: finishing a resource opens a short post-check drawn from the
+  same server-side bank as the diagnostic, graded server-side, and only the
+  graded score appends events and mints evidence. `addEvidence()` used to have
+  **zero callers**, which meant the landing page advertised "evidence, not
+  completion badges" while a real learner could never produce any. Verified live:
+  readiness 10% -> 14% after one completion, with a wallet entry whose
+  `rubricScore` is the graded result and whose `artifactUrl` is null unless the
+  learner supplied one.
+
+- **The catalog has an admin surface** (`/admin`, `/api/admin/resources`) that
+  writes MongoDB + Neo4j + Qdrant in one action. Admin is an `ADMIN_EMAILS`
+  env allowlist, not a roles table; unset means nobody is an admin. Mongo and
+  Neo4j must both succeed (a row in one and not the other is a broken gate);
+  a Qdrant failure only degrades ranking, so it is reported, not fatal.
+  Every validation rule here is a defect that was actually found by hand during
+  the build, now machine-enforced: **the server fetches the URL itself** and
+  refuses to store a row it could not reach (so `lastVerifiedAt` records a check
+  that happened), skill ids are checked against the graph, a row may not require
+  what it teaches, URLs may not duplicate, and hosts outside the sourcing
+  allowlist need explicit confirmation.
+
 Still not true / not built: the question bank still lives in code
 (`lib/diagnostic/questions.ts` + `questions-data-analytics.ts`) rather than in
 Mongo. That is fine while domains ship with the app; it becomes a real
@@ -460,6 +482,38 @@ knows where things stand without re-deriving it.
   is built from the graph) → 15-question diagnostic on the new ladder →
   roadmap where Data Visualization, despite the highest importance (1.0),
   correctly ranks *below* lower-importance unlocked skills.
+
+- 2026-08-27: **Closed the loop, and added catalog administration.**
+  The E2E audit had surfaced the real gap: `addEvidence()` had zero callers and
+  `appendEvents` exactly one, so mastery could never move past the diagnostic and
+  the evidence wallet could only ever show rows seeded to a hardcoded
+  `DEMO_LEARNER_ID`. `lib/services/completion.ts` + `POST /api/complete` +
+  `components/CompleteResource` fix that end to end.
+  Deliberate call: completion is **not** self-reported. It reuses the diagnostic
+  question bank as a post-check, graded server-side, because a self-reported
+  checkbox would violate product rule 4 and would be worthless to a recruiter.
+  Questions already used are excluded via event metadata, so a retry is not a
+  replay of an answer the learner has already seen.
+  `/admin` writes all three stores. Qdrant point ids are now derived from the
+  resource slug (`lib/vector/point-id.ts`) rather than the seed loop's array
+  index, which silently reshuffled every id whenever catalog order changed —
+  that made a targeted re-index or delete impossible.
+  Also fixed, same class as the earlier mastery bug: `POST /api/roadmap`
+  **required `preferences` in the body** and 400'd without them, ignoring the
+  preferences the learner had already given at onboarding. It now falls back to
+  the stored profile.
+  Two "failures" during verification were the test's fault, not the app's, and
+  both are worth remembering. Semantic search for "networking basics" returned
+  `ibm-networking-topic`, which teaches `it-networking-fundamentals` (IT Support)
+  — a *different* skill that happens to render as "Networking Fundamentals". The
+  SOC analyst's readiness correctly did not move. Completing a resource outside
+  the target role is supposed to be a no-op for that role.
+  Verified live: 14/14 admin checks (403 for non-admins, 404 on the page, dead
+  URL rejected as HTTP 404, off-allowlist host held for confirmation, duplicate
+  URL named its clashing row, self-blocking prerequisite rejected, save landed in
+  all three stores and the new row came straight back out of the real
+  Qdrant -> Neo4j -> Mongo pipeline, delete removed it from all three) and 14/14
+  loop checks.
 
 - [x] Repo scaffolded; Neo4j, MongoDB, and Qdrant all connected
 - [x] Skill graph + prerequisite edges seeded in Neo4j — 9 domains, 19 roles,

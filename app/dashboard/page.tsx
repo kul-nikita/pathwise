@@ -9,6 +9,7 @@ import { getMastery, getProfile, listEvidence } from "@/lib/db/learners";
 import { listDomains, listRoles } from "@/lib/graph/queries";
 import { DEFAULT_PREFERENCES, DEFAULT_WEEKLY_HOURS } from "@/lib/constants";
 import { requireUserOrRedirect } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,14 @@ export default async function DashboardPage() {
             >
               View evidence wallet
             </Link>
+            {isAdmin(user) ? (
+              <Link
+                className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+                href="/admin"
+              >
+                Catalog admin
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>

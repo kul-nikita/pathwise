@@ -2,6 +2,7 @@ import { allResources } from "@/seed/data";
 import { getQdrantClient } from "@/lib/vector/qdrant";
 import { EMBEDDING_DIMENSIONS, embedText } from "@/lib/vector/embeddings";
 import { COLLECTION } from "@/lib/vector/search";
+import { pointIdForResource } from "@/lib/vector/point-id";
 
 /** Spacing between embedding calls, to stay under the free-tier rate limit. */
 const REQUEST_SPACING_MS = 400;
@@ -48,8 +49,9 @@ async function main() {
     );
 
     points.push({
-      // Qdrant point IDs must be numeric or UUID — the slug lives in the payload.
-      id: index,
+      // Derived from the slug so re-indexing one resource replaces its own
+      // point. See lib/vector/point-id.
+      id: pointIdForResource(resource.id),
       vector,
       payload: {
         resourceId: resource.id,

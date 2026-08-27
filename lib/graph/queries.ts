@@ -71,6 +71,22 @@ export async function getSkillGraph(domainId?: string): Promise<SkillGraph> {
   return { skills };
 }
 
+export async function getSkillsByIds(skillIds: string[]): Promise<Skill[]> {
+  if (skillIds.length === 0) {
+    return [];
+  }
+
+  return runQuery<Skill>(
+    `MATCH (s:Skill)-[:IN_DOMAIN]->(d:Domain)
+     WHERE s.id IN $skillIds
+     OPTIONAL MATCH (prereq:Skill)-[:PREREQUISITE_OF]->(s)
+     WITH s, d, collect(prereq.id) AS prerequisites
+     RETURN s.id AS id, d.id AS domainId, s.name AS name, s.category AS category,
+            s.description AS description, prerequisites`,
+    { skillIds }
+  );
+}
+
 /**
  * Prerequisite validation as a graph traversal: walks the full transitive
  * prerequisite chain and filters by the learner's mastery inside Cypher.
