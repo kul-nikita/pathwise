@@ -23,7 +23,17 @@ const valid = {
   targetRoleId: "soc-analyst",
   timelineWeeks: 12,
   weeklyHours: 8,
-  preferences: { maxHoursPerStep: 2, cost: "free", format: "lab" }
+  preferences: { maxHoursPerStep: 2, cost: "free", format: "lab" },
+  // The learner-profile fields are required by the schema, so a fixture without
+  // them fails for the wrong reason and hides what these tests actually pin:
+  // that the role enum is built from seeded data.
+  careerObjective: "Become a junior SOC analyst",
+  experienceLevel: "beginner",
+  currentSkills: ["linux-fundamentals"],
+  interests: ["threat detection"],
+  learningHistory: [],
+  preferredTechnologies: ["Splunk"],
+  learningStyle: "hands-on"
 };
 
 describe("learner intent validation (LLM trust boundary)", () => {
