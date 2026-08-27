@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .next
 node_modules
 dist
@@ -9,3 +10,63 @@ tsconfig.tsbuildinfo
 
 .vercel
 .env*
+=======
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite3
+
+# Chroma
+chroma_data/
+>>>>>>> main
