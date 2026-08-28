@@ -1,100 +1,131 @@
 import Link from "next/link";
+import { Bell, ChevronDown, Sparkles } from "lucide-react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { button } from "@/lib/ui";
 import type { User } from "@/lib/db/users";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/diagnostic", label: "Diagnostic" },
-  { href: "/evidence", label: "Evidence" }
+  { href: "/evidence", label: "Evidence" },
 ];
 
-/**
- * One header for every page. Before this, only the landing page had any
- * navigation at all — an authenticated learner had no way back to the
- * dashboard, no link to their account, and no way to sign out.
- *
- * `current` drives aria-current for screen readers, not just the visual state.
- */
 export function SiteHeader({
   user,
   current,
-  showAdmin = false
+  showAdmin = false,
 }: {
   user?: Pick<User, "email"> | null;
   current?: string;
   showAdmin?: boolean;
 }) {
-  const links = showAdmin ? [...NAV, { href: "/admin", label: "Catalog" }] : NAV;
+  const links = showAdmin
+    ? [...NAV, { href: "/admin", label: "Catalog" }]
+    : NAV;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-white/85 backdrop-blur">
-      <nav
-        aria-label="Main"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-6"
-      >
-        <div className="flex items-center gap-6">
-          <Link
-            className="flex items-center gap-2 rounded-md text-lg font-semibold tracking-tight text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-            href={user ? "/dashboard" : "/"}
-          >
-            <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-md bg-teal">
-              <svg fill="none" height="16" viewBox="0 0 16 16" width="16">
-                <path
-                  d="M3 12.5 7 3l2.2 5.2L13 5.5"
-                  stroke="white"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-              </svg>
-            </span>
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/75 backdrop-blur-xl">
+      <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-6">
+        <Link
+          href={user ? "/dashboard" : "/"}
+          className="group flex items-center gap-3"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.18)]">
+            <Sparkles size={18} className="text-white" />
+          </span>
+
+          <span className="text-base font-bold tracking-tight text-white">
             SkillForge
-          </Link>
+          </span>
+        </Link>
 
-          {user ? (
-            <ul className="hidden items-center gap-1 md:flex">
-              {links.map((link) => {
-                const active = current === link.href;
-                return (
-                  <li key={link.href}>
-                    <Link
-                      aria-current={active ? "page" : undefined}
-                      className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        active
-                          ? "bg-teal-subtle text-teal-strong"
-                          : "text-muted hover:bg-surface-sunken hover:text-ink"
-                      }`}
-                      href={link.href}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : null}
-        </div>
+        {!user && (
+          <div className="hidden items-center gap-8 md:flex">
+            <a
+              href="#how-it-works"
+              className="text-sm text-slate-400 transition hover:text-white"
+            >
+              How it works
+            </a>
 
-        <div className="flex items-center gap-2">
+            <a
+              href="#career-tracks"
+              className="text-sm text-slate-400 transition hover:text-white"
+            >
+              Learning paths
+            </a>
+
+            <a
+              href="#ai-mentor"
+              className="text-sm text-slate-400 transition hover:text-white"
+            >
+              AI Mentor
+            </a>
+
+            <a
+              href="#about"
+              className="text-sm text-slate-400 transition hover:text-white"
+            >
+              About us
+            </a>
+          </div>
+        )}
+
+        {user && (
+          <ul className="hidden items-center gap-1 md:flex">
+            {links.map((link) => {
+              const active = current === link.href;
+
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                      active
+                        ? "bg-violet-500/15 text-violet-300"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <div className="flex items-center gap-3">
           {user ? (
             <>
+              <button
+                type="button"
+                className="hidden rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white sm:block"
+              >
+                <Bell size={18} />
+              </button>
+
               <Link
-                aria-current={current === "/account" ? "page" : undefined}
-                className="hidden max-w-[16rem] truncate rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-surface-sunken hover:text-ink sm:block"
                 href="/account"
-                title={user.email}
+                className="hidden max-w-[180px] truncate rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5 sm:block"
               >
                 {user.email}
               </Link>
-              <SignOutButton className={button.ghost} />
+
+              <SignOutButton className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:border-white/20 hover:bg-white/5 hover:text-white" />
             </>
           ) : (
             <>
-              <Link className={button.ghost} href="/login">
+              <Link
+                href="/login"
+                className="hidden px-3 py-2 text-sm font-medium text-slate-300 transition hover:text-white sm:block"
+              >
                 Sign in
               </Link>
-              <Link className={button.primary} href="/onboarding">
+
+              <Link
+                href="/onboarding"
+                className="rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_25px_rgba(99,102,241,0.2)] transition hover:scale-[1.02]"
+              >
                 Get started
               </Link>
             </>
@@ -102,34 +133,26 @@ export function SiteHeader({
         </div>
       </nav>
 
-      {/* The nav collapses on small screens; these keep it reachable there. */}
-      {user ? (
-        <ul className="flex items-center gap-1 overflow-x-auto border-t border-border px-4 py-2 md:hidden">
+      {user && (
+        <div className="flex gap-1 overflow-x-auto border-t border-white/5 px-4 py-2 md:hidden">
           {links.map((link) => (
-            <li key={link.href}>
-              <Link
-                aria-current={current === link.href ? "page" : undefined}
-                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ${
-                  current === link.href
-                    ? "bg-teal-subtle text-teal-strong"
-                    : "text-muted hover:text-ink"
-                }`}
-                href={link.href}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-          <li>
             <Link
-              className="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-muted hover:text-ink"
-              href="/account"
+              key={link.href}
+              href={link.href}
+              className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white"
             >
-              Account
+              {link.label}
             </Link>
-          </li>
-        </ul>
-      ) : null}
+          ))}
+
+          <Link
+            href="/account"
+            className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white"
+          >
+            Account
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

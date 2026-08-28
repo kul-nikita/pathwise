@@ -3,15 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { button, input } from "@/lib/ui";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowRight,
+  Mail,
+  Lock
+} from "lucide-react";
 
-// Sentence case here rather than the dense uppercase used on the admin grid:
-// a two-field sign-in form does not need shouting.
-const fieldLabel = "mb-1.5 block text-sm font-medium text-ink";
-
-export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: string }) {
+export function AuthForm({
+  mode,
+  next
+}: {
+  mode: "login" | "signup";
+  next: string;
+}) {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [reveal, setReveal] = useState(false);
@@ -22,15 +31,22 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+
     setBusy(true);
     setError(null);
 
     try {
       const res = await fetch(`/api/auth/${mode}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
       });
+
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
@@ -40,6 +56,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
 
       router.push(next);
       router.refresh();
+
     } catch {
       setError("Could not reach the server.");
     } finally {
@@ -48,73 +65,129 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
   }
 
   return (
-    <form className="space-y-4" onSubmit={submit}>
-      <div>
-        <label className={fieldLabel} htmlFor="email">
-          Email
+    <form className="auth-form" onSubmit={submit}>
+
+      <div className="form-field">
+        <label htmlFor="email">
+          Email address
         </label>
-        <input
-          autoComplete="email"
-          className={input}
-          id="email"
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
-          required
-          type="email"
-          value={email}
-        />
+
+        <div className="input-shell">
+
+          <Mail size={17} className="input-icon" />
+
+          <input
+            autoComplete="email"
+            id="email"
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+            required
+            type="email"
+            value={email}
+          />
+
+        </div>
       </div>
 
-      <div>
-        <label className={fieldLabel} htmlFor="password">
-          Password
-        </label>
-        <div className="relative">
+      <div className="form-field">
+
+        <div className="label-row">
+          <label htmlFor="password">
+            Password
+          </label>
+
+          {!isSignup && (
+            <span className="forgot">
+              Secure access
+            </span>
+          )}
+        </div>
+
+        <div className="input-shell">
+
+          <Lock size={17} className="input-icon" />
+
           <input
-            autoComplete={isSignup ? "new-password" : "current-password"}
-            className={`${input} pr-11`}
+            autoComplete={
+              isSignup ? "new-password" : "current-password"
+            }
             id="password"
             minLength={isSignup ? 10 : undefined}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder="Enter your password"
             required
             type={reveal ? "text" : "password"}
             value={password}
           />
+
           <button
-            aria-label={reveal ? "Hide password" : "Show password"}
-            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-2 text-muted hover:text-ink"
+            aria-label={
+              reveal ? "Hide password" : "Show password"
+            }
+            className="password-toggle"
             onClick={() => setReveal((current) => !current)}
             type="button"
           >
-            {reveal ? <EyeOff aria-hidden="true" size={16} /> : <Eye aria-hidden="true" size={16} />}
+            {reveal ? (
+              <EyeOff size={17} />
+            ) : (
+              <Eye size={17} />
+            )}
           </button>
+
         </div>
-        {isSignup ? <p className="mt-1.5 text-xs text-muted">At least 10 characters.</p> : null}
+
+        {isSignup && (
+          <p className="password-hint">
+            Use at least 10 characters.
+          </p>
+        )}
       </div>
 
-      {error ? (
-        <p
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800"
-          role="alert"
-        >
+      {error && (
+        <div className="auth-error" role="alert">
           {error}
-        </p>
-      ) : null}
+        </div>
+      )}
 
-      <button className={`${button.primary} w-full`} disabled={busy} type="submit">
-        {busy ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : null}
-        {busy ? "Working…" : isSignup ? "Create account" : "Sign in"}
+      <button
+        className="auth-submit"
+        disabled={busy}
+        type="submit"
+      >
+        {busy ? (
+          <>
+            <Loader2
+              size={17}
+              className="spin"
+            />
+            Processing...
+          </>
+        ) : (
+          <>
+            {isSignup ? "Create my learning profile" : "Sign in"}
+            <ArrowRight size={17} />
+          </>
+        )}
       </button>
 
-      <p className="text-center text-sm text-muted">
-        {isSignup ? "Already have an account? " : "No account yet? "}
-        <Link
-          className="font-semibold text-teal hover:underline"
-          href={isSignup ? "/login" : "/signup"}
-        >
-          {isSignup ? "Sign in" : "Create one"}
-        </Link>
-      </p>
+      <div className="auth-divider">
+        <span />
+        <small>
+          {isSignup
+            ? "Already have an account?"
+            : "New to SkillForge?"}
+        </small>
+        <span />
+      </div>
+
+      <Link
+        className="auth-switch"
+        href={isSignup ? "/login" : "/signup"}
+      >
+        {isSignup ? "Sign in to your account" : "Create your account"}
+      </Link>
+
     </form>
   );
 }
