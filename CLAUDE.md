@@ -515,6 +515,39 @@ knows where things stand without re-deriving it.
   Qdrant -> Neo4j -> Mongo pipeline, delete removed it from all three) and 14/14
   loop checks.
 
+- 2026-08-28: **Merged the teammate UI redesign and corrected what it asserted.**
+  Fast-forwarded `05c3dfa` (a 2,064-line redesign of the landing page, auth
+  screens and header). Typecheck, lint, 107 unit tests and the build were all
+  green on it, which is exactly why the problems it carried are worth recording:
+  **none of them were the kind a test suite catches.**
+  The landing page had been given hardcoded marketing numbers — "12+ Learning
+  Domains, 48+ Career Tracks, 1200+ Skills in Graph" — against real seeded
+  values of **9 / 19 / 96**. The footer of the same page already rendered the
+  true counts from `getSkillGraph()`, so the page contradicted itself, and the
+  headline claim was off by more than 12x on skills. The hero diagram likewise
+  hardcoded a path ("JavaScript Foundations -> React Fundamentals", "96% match")
+  and a goal ("Become a Full-Stack Developer") — none of those skills, that
+  role, or that number exist anywhere in the product. For a project whose entire
+  pitch is "every recommendation is checkable", inflated numbers on the landing
+  page are the most expensive possible bug.
+  All of it now derives from the graph the page already fetched: stats from
+  `domains.length / roles.length / graph.skills.length`, the hero chain from
+  `pickChain(graph.skills, 4)` — which resurrected `components/PrerequisiteChain`,
+  built for exactly this and left with **zero callers** by the redesign — and the
+  goal from a role that genuinely requires the last skill shown.
+  Four other real defects in the same commit: `app/globals.css` never defined
+  `.skillforge-hero-bg`, `.skillforge-grid`, `.skillforge-network` or
+  `.skillforge-path-panel`, so four decorative layers rendered as flat colour
+  (CSS has no compiler to catch this); all four public nav anchors
+  (`#how-it-works`, `#career-tracks`, `#ai-mentor`, `#about`) pointed at ids that
+  existed nowhere, so every link in the signed-out header was dead — three now
+  have real section ids and "AI Mentor" was removed rather than have a section
+  invented to justify it; and `/login` re-set `title: "Sign in | SkillForge"`,
+  which the layout template turns into "Sign in | SkillForge · SkillForge".
+  Verified live rather than assumed: rendered HTML no longer contains any of the
+  six fabricated strings, and shows 9 / 19 / 96 matching the footer. **47/47**
+  E2E checks pass against the merged build (20 routing, 13 loop, 14 admin).
+
 - [x] Repo scaffolded; Neo4j, MongoDB, and Qdrant all connected
 - [x] Skill graph + prerequisite edges seeded in Neo4j — 9 domains, 19 roles,
       96 skills

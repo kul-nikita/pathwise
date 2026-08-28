@@ -55,13 +55,6 @@ export function SiteHeader({
             </a>
 
             <a
-              href="#ai-mentor"
-              className="text-sm text-slate-400 transition hover:text-white"
-            >
-              AI Mentor
-            </a>
-
-            <a
               href="#about"
               className="text-sm text-slate-400 transition hover:text-white"
             >

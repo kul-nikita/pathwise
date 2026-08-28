@@ -2,7 +2,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { AuthLayout } from "@/components/AuthLayout";
 
 export const metadata = {
-  title: "Sign in | SkillForge"
+  title: "Sign in"
 };
 
 export default async function LoginPage({
