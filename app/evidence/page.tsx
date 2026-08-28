@@ -30,7 +30,7 @@ export default async function EvidencePage() {
     <>
       <SiteHeader current="/evidence" showAdmin={isAdmin(user)} user={user} />
       <main className="min-h-screen bg-canvas" id="main">
-      <section className="border-b border-border bg-white">
+      <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-4xl px-6 py-8">
             <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -57,7 +57,7 @@ export default async function EvidencePage() {
 
       <div className="mx-auto max-w-4xl space-y-5 px-6 py-8">
         {evidence.length === 0 && (
-          <p className="rounded-lg border border-border bg-white p-6 text-sm text-muted">
+          <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted">
             No evidence yet. Completing a recommended resource with an evidence artifact adds the first
             card here.
           </p>

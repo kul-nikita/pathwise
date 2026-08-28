@@ -146,7 +146,7 @@ export function CompleteResource({
         )}
 
         {!outcome.persisted ? (
-          <p className="mt-3 text-sm text-amber-700">
+          <p className="mt-3 text-sm text-amber-200">
             Nothing was saved: analysis of your learning data needs consent, which you can give in
             account settings.
           </p>
@@ -159,7 +159,7 @@ export function CompleteResource({
     return (
       <div className="mt-4">
         <button
-          className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-teal disabled:opacity-60"
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-ink hover:border-teal disabled:opacity-60"
           disabled={busy}
           onClick={start}
           type="button"
@@ -167,7 +167,7 @@ export function CompleteResource({
           {busy ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : null}
           I finished this
         </button>
-        {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
+        {error ? <p className="mt-2 text-sm text-red-300">{error}</p> : null}
       </div>
     );
   }
@@ -207,7 +207,7 @@ export function CompleteResource({
           What did you actually do? (your words, shown on the evidence card)
         </span>
         <textarea
-          className="h-20 w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-ink outline-none focus:border-teal"
+          className="h-20 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-teal"
           onChange={(event) => setSummary(event.target.value)}
           value={summary}
         />
@@ -218,14 +218,14 @@ export function CompleteResource({
           Link to your artifact (optional — left blank rather than faked)
         </span>
         <input
-          className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-ink outline-none focus:border-teal"
+          className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-teal"
           onChange={(event) => setArtifactUrl(event.target.value)}
           placeholder="https://github.com/you/writeup"
           value={artifactUrl}
         />
       </label>
 
-      {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
 
       <div className="mt-4 flex gap-2">
         <button
@@ -238,7 +238,7 @@ export function CompleteResource({
           Submit and record
         </button>
         <button
-          className="inline-flex h-10 items-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+          className="inline-flex h-10 items-center rounded-md border border-border bg-surface px-4 text-sm font-semibold hover:border-teal"
           onClick={() => setOpen(false)}
           type="button"
         >

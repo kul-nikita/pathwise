@@ -13,16 +13,16 @@ const BUTTON_BASE =
   "disabled:opacity-50";
 
 export const button = {
-  primary: `${BUTTON_BASE} h-10 bg-teal text-white shadow-sm hover:bg-teal-strong`,
-  secondary: `${BUTTON_BASE} h-10 border border-border bg-white text-ink shadow-sm hover:border-teal hover:text-teal`,
+  primary: `${BUTTON_BASE} h-10 bg-gradient-to-r from-violet-600 via-blue-500 to-cyan-400 text-white shadow-[0_0_22px_rgba(56,189,248,0.18)] hover:brightness-110`,
+  secondary: `${BUTTON_BASE} h-10 border border-border bg-surface text-ink shadow-sm hover:border-teal-soft hover:bg-surface-sunken`,
   ghost: `${BUTTON_BASE} h-9 text-muted hover:bg-surface-sunken hover:text-ink`,
-  danger: `${BUTTON_BASE} h-10 border border-red-200 bg-white text-red-700 shadow-sm hover:border-red-400 hover:bg-red-50`
+  danger: `${BUTTON_BASE} h-10 border border-red-500/40 bg-red-500/10 text-red-300 shadow-sm hover:border-red-400/70 hover:bg-red-500/20`
 };
 
-export const card = "rounded-xl border border-border bg-white shadow-card";
+export const card = "rounded-xl border border-border bg-surface shadow-card";
 
 export const input =
-  "w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-ink shadow-inner-hairline " +
-  "outline-none transition-colors placeholder:text-muted/70 focus:border-teal focus:ring-2 focus:ring-teal/20";
+  "w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-ink shadow-inner-hairline " +
+  "outline-none transition-colors placeholder:text-muted/70 focus:border-teal-soft focus:ring-2 focus:ring-teal-soft/40";
 
 export const label = "mb-1 block text-xs font-medium uppercase tracking-wide text-muted";

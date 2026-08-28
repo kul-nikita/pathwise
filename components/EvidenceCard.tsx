@@ -11,7 +11,7 @@ export function EvidenceCard({
   skill?: Skill;
 }) {
   return (
-    <article className="rounded-lg border border-border bg-white p-5">
+    <article className="rounded-lg border border-border bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">

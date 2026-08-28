@@ -236,12 +236,9 @@ Kept here deliberately rather than left for someone to discover.
 - **The question bank lives in code** (`lib/diagnostic/questions*.ts`), not in
   Mongo. Fine while domains ship with the app; a real limitation the moment
   domains are authored without a deploy.
-- **The dashboard and diagnostic screens** have the shared shell and typography
-  but their internal card layouts have not had a design pass yet.
-- **The landing page and the signed-in app are on different palettes.** The
-  marketing surface is dark; the dashboard, diagnostic, evidence and account
-  screens are light, under a shared dark header. It reads as deliberate rather
-  than broken, but the two halves have not been reconciled into one palette.
+- **The dashboard and diagnostic card layouts** are on the shared dark palette
+  and shared components, but their internal composition has not had a bespoke
+  design pass — they are consistent rather than crafted.
 - **Deleting a catalog row leaves existing evidence pointing at it.** That is
   intentional — evidence a learner earned should not vanish because a curator
   tidied the catalog — but the evidence card then shows the resource id rather

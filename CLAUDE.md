@@ -548,6 +548,42 @@ knows where things stand without re-deriving it.
   six fabricated strings, and shows 9 / 19 / 96 matching the footer. **47/47**
   E2E checks pass against the merged build (20 routing, 13 loop, 14 admin).
 
+- 2026-08-28: **Finished the dark migration into the signed-in app.**
+  The redesign had set `body` to `#050714` with `color-scheme: dark`, but the
+  dashboard, diagnostic, evidence, account and admin screens still painted
+  themselves light on top of it (`bg-canvas` #f6f8fb, 36 solid `bg-white`
+  cards). That was an unfinished migration, not a deliberate light/dark split,
+  so the fix was to finish it rather than restyle each page by hand.
+  Almost all of it is one change: the semantic tokens in `tailwind.config.ts`
+  (`canvas`, `surface`, `ink`, `muted`, `border`, `teal`) now hold dark values.
+  The token *names* did not move, so every page followed without touching its
+  markup. `teal` keeps its name across ~60 usages but now resolves to the
+  landing page's cyan, dark enough to carry white label text rather than the
+  neon used for glows. Shadows were rebuilt with an inset highlight, since a
+  drop shadow reads as depth on white and as nothing on near-black.
+  What the tokens could not reach, and why each mattered:
+  **(1)** 36 literal `bg-white` surfaces -> `bg-surface`; the `bg-white/10`
+  overlays on the already-dark pages were deliberately left alone.
+  **(2)** Status colours were tuned for a white card (`bg-red-50`,
+  `text-amber-800`) and became unreadable on dark; they are now translucent
+  tints with light text.
+  **(3)** `SkillHeatmap` shaded tiles with `rgba(15,118,110,a)` - the old dark
+  teal, effectively invisible on a dark card - and switched its label to white
+  above 55% mastery. It is cyan now, and the contrast branch is gone: `ink` is
+  light at every level, so the conditional had nothing left to switch between.
+  **(4)** Seven form fields declared a border but no background, so they fell
+  through to the browser's dark-mode default grey and sat visibly outside the
+  palette. Every field now states its own background.
+  Verified by looking at it, not by reading class names: a throwaway
+  `/dev-preview` route rendered the token set and the heatmap, and the
+  authenticated pages were captured server-side and served as static HTML,
+  because browser-side sign-in is blocked here. Both scaffolds were deleted.
+  47/47 E2E still pass (20 routing, 13 loop, 14 admin), plus 107 unit tests.
+  Worth remembering: two dev servers were running, and the stale one on :3000
+  was serving CSS from a `.next` that a later `npm run build` had clobbered -
+  the documented trap in this file. It rendered pages completely unstyled and
+  looked exactly like a broken retheme. The real server was on :3001.
+
 - [x] Repo scaffolded; Neo4j, MongoDB, and Qdrant all connected
 - [x] Skill graph + prerequisite edges seeded in Neo4j — 9 domains, 19 roles,
       96 skills

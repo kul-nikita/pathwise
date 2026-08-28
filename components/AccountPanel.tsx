@@ -162,7 +162,7 @@ export function AccountPanel({
         </button>
       </section>
 
-      <section className={`${card} border-red-200 p-6`}>
+      <section className={`${card} border-red-500/40 p-6`}>
         <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
           <AlertTriangle aria-hidden="true" className="text-red-600" size={18} />
           Delete account
@@ -205,7 +205,7 @@ export function AccountPanel({
       </section>
 
       {note ? (
-        <p className="rounded-lg border border-border bg-white px-4 py-3 text-sm text-ink" role="status">
+        <p className="rounded-lg border border-border bg-surface px-4 py-3 text-sm text-ink" role="status">
           {note}
         </p>
       ) : null}

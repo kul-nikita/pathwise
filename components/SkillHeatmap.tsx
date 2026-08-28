@@ -35,7 +35,7 @@ export function SkillHeatmap({
   }
 
   return (
-    <article className="rounded-lg border border-border bg-white p-5">
+    <article className="rounded-lg border border-border bg-surface p-5">
       <h2 className="text-lg font-semibold">Skill heatmap</h2>
       <p className="mt-2 text-sm text-muted">
         Every skill this role requires, shaded by current mastery. Locked skills are waiting on a
@@ -48,33 +48,33 @@ export function SkillHeatmap({
           return (
             <li
               className="rounded-md border border-border p-3"
-              // Alpha carries the intensity so the teal stays on-brand at every
+              // Alpha carries the intensity so the accent stays on-brand at every
               // level; the floor keeps a 0% tile visible rather than blank.
-              style={{ backgroundColor: `rgba(15, 118, 110, ${0.06 + tile.currentMastery * 0.54})` }}
+              // Cyan rather than the old dark teal, which was invisible against
+              // a dark card.
+              style={{ backgroundColor: `rgba(34, 211, 238, ${0.05 + tile.currentMastery * 0.30})` }}
               key={tile.skill.id}
             >
               <div className="flex items-start justify-between gap-2">
-                <span
-                  className={`text-sm font-semibold ${tile.currentMastery > 0.55 ? "text-white" : "text-ink"}`}
-                >
+                <span className="text-sm font-semibold text-ink">
                   {tile.skill.name}
                 </span>
                 {tile.locked && (
                   <Lock
                     aria-label="Prerequisites not met"
-                    className={tile.currentMastery > 0.55 ? "text-white" : "text-muted"}
+                    className="text-muted"
                     size={14}
                   />
                 )}
               </div>
               <div
-                className={`mt-2 text-xs ${tile.currentMastery > 0.55 ? "text-white/80" : "text-muted"}`}
+                className="mt-2 text-xs text-muted"
               >
                 {percent}% mastery · importance {Math.round(tile.importance * 100)}%
               </div>
               {tile.locked && (
                 <div
-                  className={`mt-1 text-xs ${tile.currentMastery > 0.55 ? "text-white/80" : "text-muted"}`}
+                  className="mt-1 text-xs text-muted"
                 >
                   needs {tile.unmet.length} prerequisite{tile.unmet.length === 1 ? "" : "s"}
                 </div>
@@ -90,7 +90,7 @@ export function SkillHeatmap({
           aria-hidden="true"
           className="h-2 flex-1 rounded-full"
           style={{
-            backgroundImage: "linear-gradient(to right, rgba(15,118,110,0.06), rgba(15,118,110,0.6))"
+            backgroundImage: "linear-gradient(to right, rgba(34,211,238,0.05), rgba(34,211,238,0.35))"
           }}
         />
         <span>100%</span>

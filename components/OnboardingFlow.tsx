@@ -84,7 +84,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
     return (
       <form className="mt-8 space-y-4" onSubmit={parseGoal}>
         <textarea
-          className="h-36 w-full rounded-md border border-border p-3 text-sm focus:border-teal focus:outline-none"
+          className="h-36 w-full rounded-md border border-border bg-surface-sunken p-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
           onChange={(e) => setGoal(e.target.value)}
           placeholder="e.g. I want to become a junior SOC analyst in 12 weeks, about 8 hours a week, free hands-on labs."
           required
@@ -94,7 +94,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
         <div className="flex flex-wrap gap-2">
           {EXAMPLES.map((example, index) => (
             <button
-              className="rounded-md border border-border bg-white px-3 py-1.5 text-xs text-muted hover:border-teal hover:text-ink"
+              className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted hover:border-teal hover:text-ink"
               key={example}
               onClick={() => setGoal(example)}
               type="button"
@@ -105,7 +105,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
         </div>
 
         {error && (
-          <p className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">
+          <p className="rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300" role="alert">
             {error}
           </p>
         )}
@@ -126,7 +126,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
 
   return (
     <section className="mt-8 space-y-5">
-      <div className="rounded-lg border border-border bg-white p-6">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <h2 className="text-lg font-semibold text-ink">Here&apos;s what we understood</h2>
         <p className="mt-1 text-sm text-muted">
           Change anything that&apos;s wrong. Nothing is saved until you confirm.
@@ -136,7 +136,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
           <label className="block">
             <span className="text-sm font-medium text-ink">Target role</span>
             <select
-              className="mt-1 h-10 w-full rounded-md border border-border px-3 text-sm focus:border-teal focus:outline-none"
+              className="mt-1 h-10 w-full rounded-md border border-border bg-surface-sunken px-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
               onChange={(e) => setIntent({ ...intent, targetRoleId: e.target.value })}
               value={intent.targetRoleId}
             >
@@ -153,7 +153,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
             <label className="block">
               <span className="text-sm font-medium text-ink">Timeline (weeks)</span>
               <input
-                className="mt-1 h-10 w-full rounded-md border border-border px-3 text-sm focus:border-teal focus:outline-none"
+                className="mt-1 h-10 w-full rounded-md border border-border bg-surface-sunken px-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
                 max={52}
                 min={1}
                 onChange={(e) => setIntent({ ...intent, timelineWeeks: Number(e.target.value) })}
@@ -164,7 +164,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
             <label className="block">
               <span className="text-sm font-medium text-ink">Hours per week</span>
               <input
-                className="mt-1 h-10 w-full rounded-md border border-border px-3 text-sm focus:border-teal focus:outline-none"
+                className="mt-1 h-10 w-full rounded-md border border-border bg-surface-sunken px-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
                 max={60}
                 min={1}
                 onChange={(e) => setIntent({ ...intent, weeklyHours: Number(e.target.value) })}
@@ -175,7 +175,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
             <label className="block">
               <span className="text-sm font-medium text-ink">Preferred format</span>
               <select
-                className="mt-1 h-10 w-full rounded-md border border-border px-3 text-sm focus:border-teal focus:outline-none"
+                className="mt-1 h-10 w-full rounded-md border border-border bg-surface-sunken px-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
                 onChange={(e) =>
                   setIntent({ ...intent, preferences: { ...intent.preferences, format: e.target.value } })
                 }
@@ -191,7 +191,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
             <label className="block">
               <span className="text-sm font-medium text-ink">Budget</span>
               <select
-                className="mt-1 h-10 w-full rounded-md border border-border px-3 text-sm focus:border-teal focus:outline-none"
+                className="mt-1 h-10 w-full rounded-md border border-border bg-surface-sunken px-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
                 onChange={(e) =>
                   setIntent({ ...intent, preferences: { ...intent.preferences, cost: e.target.value } })
                 }
@@ -208,7 +208,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-white p-6">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <label className="flex gap-3">
           <input
             checked={consent}
@@ -225,7 +225,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
       </div>
 
       {error && (
-        <p className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">
+        <p className="rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300" role="alert">
           {error}
         </p>
       )}
@@ -240,7 +240,7 @@ export function OnboardingFlow({ roles }: { roles: Role[] }) {
           {busy ? "Saving…" : "Confirm and start diagnostic"}
         </button>
         <button
-          className="inline-flex h-10 items-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+          className="inline-flex h-10 items-center rounded-md border border-border bg-surface px-4 text-sm font-semibold hover:border-teal"
           disabled={busy}
           onClick={() => setIntent(null)}
           type="button"

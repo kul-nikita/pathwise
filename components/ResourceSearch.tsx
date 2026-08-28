@@ -42,7 +42,7 @@ export function ResourceSearch() {
   }
 
   return (
-    <article className="rounded-lg border border-border bg-white p-5">
+    <article className="rounded-lg border border-border bg-surface p-5">
       <div className="flex items-center gap-2">
         <Search aria-hidden="true" className="text-teal" size={20} />
         <h2 className="text-lg font-semibold">Find something specific</h2>
@@ -54,7 +54,7 @@ export function ResourceSearch() {
 
       <form className="mt-4 flex gap-2" onSubmit={run}>
         <input
-          className="h-10 flex-1 rounded-md border border-border px-3 text-sm focus:border-teal focus:outline-none"
+          className="h-10 flex-1 rounded-md border border-border bg-surface-sunken px-3 text-sm text-ink placeholder:text-muted/70 focus:border-teal-soft focus:outline-none"
           onChange={(e) => setQuery(e.target.value)}
           placeholder="e.g. catching phishing emails"
           value={query}
@@ -69,7 +69,7 @@ export function ResourceSearch() {
       </form>
 
       {error && (
-        <p className="mt-3 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">
+        <p className="mt-3 rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300" role="alert">
           {error}
         </p>
       )}

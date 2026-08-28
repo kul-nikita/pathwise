@@ -54,7 +54,7 @@ export default async function DashboardPage() {
     <>
       <SiteHeader current="/dashboard" showAdmin={isAdmin(user)} user={user} />
       <main className="min-h-screen bg-canvas" id="main">
-      <section className="border-b border-border bg-white">
+      <section className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-wide text-teal">
@@ -90,14 +90,14 @@ export default async function DashboardPage() {
               Run the adaptive diagnostic
             </Link>
             <Link
-              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-surface px-4 text-sm font-semibold hover:border-teal"
               href="/evidence"
             >
               View evidence wallet
             </Link>
             {isAdmin(user) ? (
               <Link
-                className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-surface px-4 text-sm font-semibold hover:border-teal"
                 href="/admin"
               >
                 Catalog admin
@@ -108,7 +108,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-5 px-6 py-6 lg:grid-cols-[1fr_1.3fr]">
-        <article className="rounded-lg border border-border bg-white p-5">
+        <article className="rounded-lg border border-border bg-surface p-5">
           <div className="flex items-center gap-2">
             <Route aria-hidden="true" className="text-teal" size={20} />
             <h2 className="text-lg font-semibold">Prerequisite-valid gaps</h2>
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
         </article>
 
         <div className="space-y-5">
-          <article className="rounded-lg border border-border bg-white p-5">
+          <article className="rounded-lg border border-border bg-surface p-5">
             <div className="flex items-center gap-2">
               <CheckCircle2 aria-hidden="true" className="text-teal" size={20} />
               <h2 className="text-lg font-semibold">Why recommended</h2>
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
             ))}
           </article>
 
-          <article className="rounded-lg border border-border bg-white p-5">
+          <article className="rounded-lg border border-border bg-surface p-5">
             <div className="flex items-center gap-2">
               <Award aria-hidden="true" className="text-teal" size={20} />
               <h2 className="text-lg font-semibold">Evidence wallet</h2>

@@ -15,7 +15,7 @@ export function PrerequisiteChain({ chain }: { chain: Skill[] }) {
   }
 
   return (
-    <figure className="rounded-xl border border-border bg-white p-5 shadow-lift">
+    <figure className="rounded-xl border border-border bg-surface p-5 shadow-lift">
       <figcaption className="text-xs font-semibold uppercase tracking-wide text-muted">
         How sequencing works
       </figcaption>
@@ -31,7 +31,7 @@ export function PrerequisiteChain({ chain }: { chain: Skill[] }) {
             <li key={skill.id}>
               <div
                 className={`flex items-start gap-3 rounded-lg border p-3 ${
-                  locked ? "border-dashed border-border-strong bg-surface-sunken" : "border-border bg-white"
+                  locked ? "border-dashed border-border-strong bg-surface-sunken" : "border-border bg-surface"
                 }`}
               >
                 <span

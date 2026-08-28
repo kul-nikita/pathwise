@@ -135,7 +135,7 @@ export function DiagnosticFlow({
 
   return (
     <main className="min-h-screen bg-canvas">
-      <section className="border-b border-border bg-white">
+      <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-4xl px-6 py-8">
           <Link className="inline-flex items-center gap-2 text-sm text-muted hover:text-ink" href="/">
             <ArrowLeft aria-hidden="true" size={16} />
@@ -151,7 +151,7 @@ export function DiagnosticFlow({
 
       <div className="mx-auto max-w-4xl px-6 py-8">
         {error && (
-          <p className="mb-6 rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-800" role="alert">
+          <p className="mb-6 rounded-md border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300" role="alert">
             {error}
           </p>
         )}
@@ -210,7 +210,7 @@ function WeekPlanner({ mastery, roleId }: { mastery: Record<string, number>; rol
   }
 
   return (
-    <article className="rounded-lg border border-border bg-white p-6">
+    <article className="rounded-lg border border-border bg-surface p-6">
       <div className="flex items-center gap-2">
         <CalendarClock aria-hidden="true" className="text-teal" size={20} />
         <h2 className="text-lg font-semibold">Plan this week</h2>
@@ -251,15 +251,15 @@ function WeekPlanner({ mastery, roleId }: { mastery: Record<string, number>; rol
       {data && !busy && (
         <div className="mt-5 space-y-4">
           {data.outcome && (
-            <div className="rounded-md border border-amber-300 bg-amber-50 p-4">
-              <p className="text-sm font-medium text-amber-900">{data.outcome.message}</p>
+            <div className="rounded-md border border-amber-400/40 bg-amber-400/10 p-4">
+              <p className="text-sm font-medium text-amber-200">{data.outcome.message}</p>
               {data.outcome.remediation && (
-                <p className="mt-1 text-sm text-amber-800">
+                <p className="mt-1 text-sm text-amber-200">
                   Inserted remediation: {data.outcome.remediation.title}
                 </p>
               )}
               {data.outcome.delayedSkillIds.length > 0 && (
-                <p className="mt-1 text-sm text-amber-800">
+                <p className="mt-1 text-sm text-amber-200">
                   Delayed downstream: {data.outcome.delayedSkillIds.join(", ")}
                 </p>
               )}
@@ -350,7 +350,7 @@ function RolePicker({
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {inDomain.map((role) => (
                 <button
-                  className={`rounded-lg border bg-white p-5 text-left font-medium hover:border-teal hover:text-teal ${
+                  className={`rounded-lg border bg-surface p-5 text-left font-medium hover:border-teal hover:text-teal ${
                     role.id === defaultRoleId ? "border-teal text-teal" : "border-border"
                   }`}
                   key={role.id}
@@ -390,18 +390,18 @@ function QuestionCard({
         <span>
           Question {progress.answered + 1} of at most {progress.max}
         </span>
-        <span className="rounded-md bg-white px-2 py-1 font-medium">
+        <span className="rounded-md bg-surface px-2 py-1 font-medium">
           {question.skillId} · {question.difficulty}
         </span>
       </div>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface">
         <div
           className="h-full bg-teal transition-all"
           style={{ width: `${(progress.answered / progress.max) * 100}%` }}
         />
       </div>
 
-      <article className="mt-5 rounded-lg border border-border bg-white p-6">
+      <article className="mt-5 rounded-lg border border-border bg-surface p-6">
         <h2 className="text-xl font-semibold text-ink">{question.prompt}</h2>
         <div className="mt-5 space-y-3">
           {question.options.map((option, index) => (
@@ -458,7 +458,7 @@ function Results({
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-lg border border-border bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-ink">{roadmap.role.title} readiness</h2>
           <p className="mt-1 text-sm text-muted">
@@ -472,7 +472,7 @@ function Results({
         </div>
       </div>
 
-      <article className="rounded-lg border border-border bg-white p-6">
+      <article className="rounded-lg border border-border bg-surface p-6">
         <div className="flex items-center gap-2">
           <Route aria-hidden="true" className="text-teal" size={20} />
           <h2 className="text-lg font-semibold">Prerequisite-valid order</h2>
@@ -495,7 +495,7 @@ function Results({
         </ol>
       </article>
 
-      <article className="rounded-lg border border-border bg-white p-6">
+      <article className="rounded-lg border border-border bg-surface p-6">
         <div className="flex items-center gap-2">
           <CheckCircle2 aria-hidden="true" className="text-teal" size={20} />
           <h2 className="text-lg font-semibold">Why recommended</h2>
@@ -536,7 +536,7 @@ function Results({
       <WeekPlanner mastery={mastery} roleId={roleId} />
 
       <button
-        className="inline-flex h-10 items-center rounded-md border border-border bg-white px-4 text-sm font-semibold hover:border-teal"
+        className="inline-flex h-10 items-center rounded-md border border-border bg-surface px-4 text-sm font-semibold hover:border-teal"
         onClick={onRestart}
         type="button"
       >

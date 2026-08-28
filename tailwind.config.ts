@@ -4,18 +4,28 @@ const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      // Dark palette, matched to the landing page and the auth screens.
+      //
+      // `body` was already #050714 with color-scheme:dark, but the signed-in
+      // pages kept painting themselves light over it (bg-canvas #f6f8fb,
+      // bg-white cards) - an unfinished migration rather than a deliberate
+      // split. The token names are unchanged so every page follows without
+      // touching its markup; only the values moved.
       colors: {
-        border: "#e2e6ee",
-        "border-strong": "#cbd2e0",
-        canvas: "#f6f8fb",
-        surface: { DEFAULT: "#ffffff", sunken: "#f1f4f9" },
-        ink: "#0f1729",
-        muted: "#5b6577",
+        border: "rgba(255, 255, 255, 0.10)",
+        "border-strong": "rgba(255, 255, 255, 0.20)",
+        canvas: "#050816",
+        surface: { DEFAULT: "#0b1026", sunken: "#070b1c" },
+        ink: "#f8fafc",
+        muted: "#94a3b8",
+        // Kept the `teal` name so ~60 existing usages keep working, but the
+        // accent is now the landing page's cyan. Chosen dark enough to carry
+        // white label text at AA rather than the neon used for glows.
         teal: {
-          subtle: "#eefaf7",
-          soft: "#a7ded4",
-          DEFAULT: "#0f766e",
-          strong: "#0b5f59"
+          subtle: "rgba(34, 211, 238, 0.10)",
+          soft: "rgba(34, 211, 238, 0.35)",
+          DEFAULT: "#0e7490",
+          strong: "#155e75"
         }
       },
       fontFamily: {
@@ -24,10 +34,12 @@ const config: Config = {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "var(--font-sans)", "ui-sans-serif", "sans-serif"]
       },
+      // Shadows read as depth on a light page and as nothing on a dark one, so
+      // these carry a hairline highlight instead of only a drop shadow.
       boxShadow: {
-        card: "0 1px 2px rgba(15, 23, 41, 0.04), 0 1px 3px rgba(15, 23, 41, 0.06)",
-        lift: "0 4px 12px rgba(15, 23, 41, 0.08), 0 2px 4px rgba(15, 23, 41, 0.04)",
-        "inner-hairline": "inset 0 1px 1px rgba(15, 23, 41, 0.03)"
+        card: "0 1px 2px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
+        lift: "0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+        "inner-hairline": "inset 0 1px 0 rgba(255, 255, 255, 0.03)"
       }
     }
   },

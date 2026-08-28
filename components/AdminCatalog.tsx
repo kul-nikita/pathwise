@@ -24,7 +24,7 @@ const BLANK = {
 };
 
 const INPUT =
-  "w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-ink outline-none focus:border-teal";
+  "w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-teal";
 
 const ids = (value: string) =>
   value
@@ -152,7 +152,7 @@ export function AdminCatalog({
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <section className="rounded-lg border border-border bg-white p-5">
+      <section className="rounded-lg border border-border bg-surface p-5">
         <div className="flex items-center gap-2">
           <Plus aria-hidden="true" className="text-teal" size={20} />
           <h2 className="text-lg font-semibold text-ink">Add or update a resource</h2>
@@ -309,11 +309,11 @@ export function AdminCatalog({
         </div>
 
         {newHost ? (
-          <div className="mt-4 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm">
+          <div className="mt-4 rounded-md border border-amber-400/40 bg-amber-400/10 p-3 text-sm">
             <div className="flex items-start gap-2">
               <AlertTriangle
                 aria-hidden="true"
-                className="mt-0.5 shrink-0 text-amber-600"
+                className="mt-0.5 shrink-0 text-amber-200"
                 size={16}
               />
               <div>
@@ -324,7 +324,7 @@ export function AdminCatalog({
                   The catalog only draws from vetted providers. Add it only if you trust this one.
                 </p>
                 <button
-                  className="mt-2 rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+                  className="mt-2 rounded-md bg-amber-500/20 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-500/30"
                   disabled={busy}
                   onClick={() => save(true)}
                   type="button"
@@ -337,7 +337,7 @@ export function AdminCatalog({
         ) : null}
 
         {issues.length > 0 ? (
-          <ul className="mt-4 space-y-1 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <ul className="mt-4 space-y-1 rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">
             {issues.map((issue) => (
               <li className="flex gap-2" key={`${issue.field}-${issue.message}`}>
                 <X aria-hidden="true" className="mt-0.5 shrink-0" size={14} />
@@ -380,7 +380,7 @@ export function AdminCatalog({
         </button>
       </section>
 
-      <section className="rounded-lg border border-border bg-white p-5">
+      <section className="rounded-lg border border-border bg-surface p-5">
         <div className="flex items-center gap-2">
           <Database aria-hidden="true" className="text-teal" size={20} />
           <h2 className="text-lg font-semibold text-ink">Catalog ({resources.length})</h2>
@@ -409,7 +409,7 @@ export function AdminCatalog({
                 </div>
                 <button
                   aria-label={`Remove ${row.title}`}
-                  className="shrink-0 rounded-md border border-border p-2 text-muted hover:border-red-300 hover:text-red-600 disabled:opacity-50"
+                  className="shrink-0 rounded-md border border-border p-2 text-muted hover:border-red-500/40 hover:text-red-600 disabled:opacity-50"
                   disabled={busy}
                   onClick={() => remove(row.id)}
                   type="button"
