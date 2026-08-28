@@ -1,35 +1,73 @@
 import Link from "next/link";
-import { Award, GitBranch, Gauge, Search } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  BrainCircuit,
+  Check,
+  CircleDot,
+  GitBranch,
+  Layers3,
+  Search,
+  Sparkles,
+  Target,
+  Zap,
+  ShieldCheck,
+  BarChart3,
+  Code2,
+  Database,
+  LockKeyhole,
+  Palette,
+  Cpu,
+} from "lucide-react";
+
 import { listDomains, listRoles, getSkillGraph } from "@/lib/graph/queries";
-import { PrerequisiteChain, pickChain } from "@/components/PrerequisiteChain";
 import { getCurrentUser } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
 import { SiteHeader } from "@/components/SiteHeader";
-import { button } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
-const PILLARS = [
+const FEATURES = [
   {
+    number: "01",
     icon: GitBranch,
-    title: "Prerequisite-aware by construction",
-    body: "Sequencing is a graph traversal, not a model's opinion. A skill can never be recommended before what it depends on."
+    title: "Prerequisites built into the path",
+    text: "Your roadmap follows a real skill dependency graph, so foundations come before advanced concepts.",
   },
   {
-    icon: Gauge,
-    title: "Transparent scoring, not a black box",
-    body: "Every recommendation shows six numeric components — gap match, prerequisite readiness, quality, preference, time, and cost."
+    number: "02",
+    icon: BrainCircuit,
+    title: "Recommendations you can understand",
+    text: "Every recommendation explains why it was selected instead of hiding the decision inside a black box.",
   },
   {
+    number: "03",
     icon: Search,
-    title: "Real resources only",
-    body: "Titles, links, durations and costs come from a hand-verified catalog. The model explains; it never invents a fact."
+    title: "Resources you can actually use",
+    text: "Learning resources come from a verified catalog with useful information such as duration, links and cost.",
   },
   {
+    number: "04",
     icon: Award,
-    title: "Evidence, not completion badges",
-    body: "Each milestone produces a capability record with a rubric score and the specific skills it demonstrates."
-  }
+    title: "Turn learning into evidence",
+    text: "Completed milestones become capability records that demonstrate what you can actually do.",
+  },
+];
+
+const CAREER_ICONS = [
+  Code2,
+  BarChart3,
+  ShieldCheck,
+  BrainCircuit,
+  Palette,
+];
+
+const STATS = [
+  { value: "12+", label: "Learning Domains", icon: Layers3 },
+  { value: "48+", label: "Career Tracks", icon: Target },
+  { value: "1200+", label: "Skills in Graph", icon: GitBranch },
+  { value: "AI", label: "Personalized Paths", icon: Sparkles },
+  { value: "∞", label: "Learning Possibilities", icon: Zap },
 ];
 
 export default async function LandingPage() {
@@ -37,80 +75,518 @@ export default async function LandingPage() {
     listDomains(),
     listRoles(),
     getCurrentUser(),
-    getSkillGraph()
+    getSkillGraph(),
   ]);
-  const chain = pickChain(graph.skills);
-  const domainName = new Map(domains.map((domain) => [domain.id, domain.name]));
+
+  const displayedRoles = roles.slice(0, 5);
 
   return (
-    <main className="min-h-screen bg-canvas" id="main">
+    <main className="min-h-screen overflow-hidden bg-[#050816] text-white" id="main">
       <SiteHeader showAdmin={isAdmin(user)} user={user} />
 
-      <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <div>
-            <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink md:text-6xl">
-              Know what to learn next — and be able to prove you learned it.
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted">
-              Tell SkillForge the role you are aiming for. It maps what you already know, finds the
-              gaps, orders them so nothing is taught out of sequence, and turns every finished step
-              into portfolio evidence.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link className={`${button.primary} h-11 px-6`} href="/onboarding">
-                Build my learning path
-              </Link>
-              <Link className={`${button.secondary} h-11 px-6`} href="/diagnostic">
-                Take the diagnostic
-              </Link>
+      {/* ========================================================= */}
+      {/* HERO */}
+      {/* ========================================================= */}
+
+      <section className="relative min-h-[720px] overflow-hidden border-b border-white/10">
+        {/* Complex background */}
+        <div className="absolute inset-0 skillforge-hero-bg" />
+
+        {/* Neural grid */}
+        <div className="absolute inset-0 skillforge-grid opacity-40" />
+
+        {/* Glow orbs */}
+        <div className="absolute left-[20%] top-[18%] h-72 w-72 rounded-full bg-cyan-500/10 blur-[110px]" />
+        <div className="absolute right-[15%] top-[25%] h-96 w-96 rounded-full bg-violet-600/15 blur-[130px]" />
+        <div className="absolute bottom-[-100px] left-[45%] h-80 w-80 rounded-full bg-blue-600/10 blur-[120px]" />
+
+        {/* Decorative neural lines */}
+        <div className="pointer-events-none absolute left-[28%] top-[16%] h-[400px] w-[400px] opacity-70">
+          <div className="neural-line neural-line-one" />
+          <div className="neural-line neural-line-two" />
+          <div className="neural-line neural-line-three" />
+          <div className="neural-node node-one" />
+          <div className="neural-node node-two" />
+          <div className="neural-node node-three" />
+          <div className="neural-node node-four" />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-6 pb-20 pt-14 md:pt-20">
+          <div className="grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr]">
+            {/* LEFT */}
+            <div className="relative z-10">
+              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/5 px-4 py-2 text-xs font-semibold tracking-wide text-cyan-200">
+                <Sparkles size={15} />
+                AI-POWERED PERSONALIZED LEARNING
+              </div>
+
+              <h1 className="max-w-2xl text-5xl font-bold leading-[0.98] tracking-[-0.04em] md:text-7xl">
+                Know what to
+                <br />
+                learn{" "}
+                <span className="skillforge-gradient-text">
+                  next.
+                </span>
+              </h1>
+
+              <h2 className="mt-7 max-w-xl text-2xl font-semibold leading-tight text-slate-200 md:text-3xl">
+                And be able to prove
+                <br />
+                you learned it.
+              </h2>
+
+              <p className="mt-7 max-w-xl text-base leading-7 text-slate-300 md:text-lg">
+                SkillForge maps your goals, analyzes your skills, finds gaps,
+                orders them in the right sequence, and turns every milestone
+                into real evidence.
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link
+                  href="/onboarding"
+                  className="group inline-flex h-13 items-center gap-3 rounded-xl bg-gradient-to-r from-violet-600 via-blue-500 to-cyan-400 px-6 py-3.5 text-sm font-bold shadow-[0_0_35px_rgba(56,189,248,0.2)] transition hover:scale-[1.02]"
+                >
+                  <Sparkles size={18} />
+                  Build my learning path
+                  <ArrowRight
+                    size={17}
+                    className="transition group-hover:translate-x-1"
+                  />
+                </Link>
+
+                <Link
+                  href="/diagnostic"
+                  className="group inline-flex h-13 items-center gap-3 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-white transition hover:border-cyan-400/40 hover:bg-white/[0.08]"
+                >
+                  Take the diagnostic
+                  <ArrowRight
+                    size={17}
+                    className="transition group-hover:translate-x-1"
+                  />
+                </Link>
+              </div>
+
+              <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3">
+                {[
+                  "Skill-gap analysis",
+                  "Prerequisite-aware",
+                  "Explainable AI",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-2 text-sm text-slate-400"
+                  >
+                    <Check size={15} className="text-cyan-300" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT - ONE INTEGRATED AI CARD */}
+            <div className="relative z-10 flex justify-center lg:justify-end">
+              <div className="skillforge-path-panel relative w-full max-w-[560px] overflow-hidden rounded-[28px] border border-cyan-300/20 bg-[#0b1026]/90 p-5 shadow-[0_30px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl md:p-6">
+                {/* Panel glow */}
+                <div className="pointer-events-none absolute -right-32 -top-32 h-72 w-72 rounded-full bg-violet-600/20 blur-[100px]" />
+                <div className="pointer-events-none absolute -bottom-32 -left-32 h-72 w-72 rounded-full bg-cyan-500/10 blur-[100px]" />
+
+                <div className="relative">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 shadow-lg">
+                        <BrainCircuit size={23} />
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-bold uppercase tracking-wide">
+                          Your AI Learning Path
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Continuously personalized
+                        </p>
+                      </div>
+                    </div>
+
+                    <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-bold text-cyan-300">
+                      PERSONALIZED
+                    </span>
+                  </div>
+
+                  {/* Goal */}
+                  <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-9 w-9 place-items-center rounded-full border border-fuchsia-400/50 text-fuchsia-300">
+                        <Target size={18} />
+                      </div>
+
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-slate-500">
+                          Current Goal
+                        </p>
+                        <p className="mt-1 text-sm font-semibold">
+                          Become a Full-Stack Developer
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Path */}
+                  <div className="relative mt-7">
+                    <div className="absolute left-[16px] top-5 h-[205px] w-px bg-gradient-to-b from-cyan-400 via-violet-500 to-transparent" />
+
+                    {[
+                      {
+                        n: "✓",
+                        title: "JavaScript Foundations",
+                        sub: "Completed · Strong mastery",
+                        active: false,
+                      },
+                      {
+                        n: "→",
+                        title: "React Fundamentals",
+                        sub: "Recommended next · 96% match",
+                        active: true,
+                      },
+                      {
+                        n: "3",
+                        title: "Node.js & APIs",
+                        sub: "Unlocks after React",
+                        active: false,
+                      },
+                      {
+                        n: "4",
+                        title: "Full-Stack Project",
+                        sub: "Portfolio milestone",
+                        active: false,
+                      },
+                    ].map((step) => (
+                      <div
+                        key={step.title}
+                        className="relative mb-5 flex items-start gap-4 last:mb-0"
+                      >
+                        <div
+                          className={`relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full border text-xs font-bold ${
+                            step.active
+                              ? "border-cyan-300 bg-cyan-400/10 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.35)]"
+                              : "border-violet-400/60 bg-[#0b1026] text-white"
+                          }`}
+                        >
+                          {step.n}
+                        </div>
+
+                        <div className="pt-0.5">
+                          <p className="text-sm font-semibold">
+                            {step.title}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {step.sub}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Confidence - INSIDE panel */}
+                  <div className="mt-7 flex items-center justify-between rounded-2xl border border-violet-400/10 bg-gradient-to-r from-violet-500/[0.08] to-cyan-400/[0.05] px-4 py-4">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-violet-300">
+                        AI Confidence
+                      </p>
+                      <p className="mt-1 text-lg font-bold">94% match</p>
+                    </div>
+
+                    <div className="flex h-10 items-end gap-1">
+                      {[15, 23, 18, 30, 25, 34, 28, 38].map((height, i) => (
+                        <span
+                          key={i}
+                          className="w-1.5 rounded-t bg-gradient-to-t from-violet-500 to-cyan-300"
+                          style={{ height }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <PrerequisiteChain chain={chain} />
-        </div>
-      </section>
+          {/* STATS */}
+          <div className="relative z-10 mt-16 overflow-hidden rounded-2xl border border-cyan-300/20 bg-[#0b1026]/70 backdrop-blur-xl">
+            <div className="grid grid-cols-2 md:grid-cols-5">
+              {STATS.map((stat, index) => {
+                const Icon = stat.icon;
 
-      <section className="border-y border-border bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-14">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            {domains.length} domain{domains.length === 1 ? "" : "s"} · {roles.length} career track
-            {roles.length === 1 ? "" : "s"}
-          </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {roles.map((role) => (
-              <article className="rounded-lg border border-border p-5" key={role.id}>
-                <p className="text-xs font-medium uppercase tracking-wide text-teal">{domainName.get(role.domainId) ?? role.domainId}</p>
-                <h3 className="mt-2 font-semibold text-ink">{role.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted">{role.description}</p>
-                <p className="mt-3 text-sm text-muted">{role.requiredSkills.length} tracked skills</p>
-              </article>
-            ))}
-            {roles.length === 0 && (
-              <p className="text-sm text-muted">
-                Nothing seeded yet — run <code>npm run db:seed:all</code>.
-              </p>
-            )}
+                return (
+                  <div
+                    key={stat.label}
+                    className={`flex items-center gap-4 px-5 py-6 ${
+                      index !== STATS.length - 1
+                        ? "border-b border-white/10 md:border-b-0 md:border-r"
+                        : ""
+                    }`}
+                  >
+                    <Icon
+                      size={25}
+                      className="shrink-0 text-cyan-300"
+                    />
+
+                    <div>
+                      <p className="text-xl font-bold">{stat.value}</p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        {stat.label}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="text-2xl font-semibold text-ink">Why this is different</h2>
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {PILLARS.map((pillar) => (
-            <article className="rounded-lg border border-border bg-white p-6" key={pillar.title}>
-              <pillar.icon aria-hidden="true" className="text-teal" size={22} />
-              <h3 className="mt-3 text-lg font-semibold text-ink">{pillar.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted">{pillar.body}</p>
-            </article>
-          ))}
+      {/* ========================================================= */}
+      {/* DIFFERENT SECTION */}
+      {/* ========================================================= */}
+
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#070b1c] py-24">
+        <div className="absolute inset-0 skillforge-grid opacity-20" />
+
+        <div className="relative mx-auto max-w-7xl px-6">
+          <div className="max-w-3xl">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">
+              THE DIFFERENCE
+            </p>
+
+            <h2 className="text-4xl font-bold tracking-tight md:text-5xl">
+              More than a course
+              <span className="skillforge-gradient-text">
+                {" "}
+                recommender.
+              </span>
+            </h2>
+
+            <p className="mt-5 text-lg leading-8 text-slate-400">
+              The goal isn't to give learners more choices.
+              It's to give them the right next choice.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-5 md:grid-cols-2">
+            {FEATURES.map((feature) => {
+              const Icon = feature.icon;
+
+              return (
+                <article
+                  key={feature.number}
+                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025] p-7 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/[0.045]"
+                >
+                  <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-violet-500/5 blur-[70px] transition group-hover:bg-violet-500/10" />
+
+                  <div className="relative flex gap-5">
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
+                      <Icon size={21} />
+                    </div>
+
+                    <div>
+                      <div className="text-xs font-bold tracking-widest text-cyan-400">
+                        {feature.number}
+                      </div>
+
+                      <h3 className="mt-2 text-xl font-semibold">
+                        {feature.title}
+                      </h3>
+
+                      <p className="mt-3 text-sm leading-7 text-slate-400">
+                        {feature.text}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-border bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-muted">
-          You control your data: view, export, or delete your profile at any time.
+      {/* ========================================================= */}
+      {/* HOW IT WORKS */}
+      {/* ========================================================= */}
+
+      <section className="relative overflow-hidden bg-[#050816] py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-violet-300">
+                YOUR JOURNEY
+              </p>
+
+              <h2 className="text-4xl font-bold md:text-5xl">
+                How SkillForge works
+              </h2>
+            </div>
+
+            <p className="max-w-md text-sm leading-6 text-slate-400">
+              From a simple goal to an adaptive learning journey backed by
+              skills, milestones and evidence.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-6 md:grid-cols-4">
+            {[
+              {
+                n: "01",
+                icon: Target,
+                title: "Tell us your goal",
+                text: "Describe the role or outcome you want to achieve.",
+              },
+              {
+                n: "02",
+                icon: Search,
+                title: "We analyze your skills",
+                text: "We map your strengths, weaknesses and learning preferences.",
+              },
+              {
+                n: "03",
+                icon: BrainCircuit,
+                title: "AI builds your path",
+                text: "Prerequisite-aware sequencing creates your personalized roadmap.",
+              },
+              {
+                n: "04",
+                icon: Award,
+                title: "Learn & prove it",
+                text: "Milestones become evidence of the capabilities you developed.",
+              },
+            ].map((step) => {
+              const Icon = step.icon;
+
+              return (
+                <div key={step.n} className="relative">
+                  <div className="mb-5 flex items-center gap-4">
+                    <div className="grid h-14 w-14 place-items-center rounded-full border border-cyan-400/30 bg-cyan-400/5 text-cyan-300">
+                      <Icon size={22} />
+                    </div>
+
+                    <span className="text-xs font-bold tracking-widest text-slate-600">
+                      {step.n}
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-semibold">{step.title}</h3>
+
+                  <p className="mt-3 text-sm leading-6 text-slate-500">
+                    {step.text}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================= */}
+      {/* CAREER TRACKS */}
+      {/* ========================================================= */}
+
+      <section className="relative overflow-hidden border-y border-white/10 bg-[#080c20] py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex items-end justify-between gap-6">
+            <div>
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">
+                EXPLORE
+              </p>
+
+              <h2 className="text-4xl font-bold md:text-5xl">
+                Explore career tracks
+              </h2>
+            </div>
+
+            <div className="hidden rounded-lg border border-violet-400/30 px-4 py-2 text-sm text-violet-300 md:block">
+              {roles.length} tracks
+            </div>
+          </div>
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {displayedRoles.map((role, index) => {
+              const Icon =
+                CAREER_ICONS[index % CAREER_ICONS.length];
+
+              return (
+                <article
+                  key={role.id}
+                  className="group min-h-[190px] rounded-2xl border border-white/10 bg-[#0b1026] p-5 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/30"
+                >
+                  <Icon
+                    size={28}
+                    className="text-violet-300 transition group-hover:text-cyan-300"
+                  />
+
+                  <h3 className="mt-7 text-base font-semibold">
+                    {role.title}
+                  </h3>
+
+                  <p className="mt-2 text-xs text-slate-500">
+                    {role.requiredSkills.length} tracked skills
+                  </p>
+
+                  <div className="mt-6 h-px bg-white/10" />
+
+                  <p className="mt-4 line-clamp-2 text-xs leading-5 text-slate-500">
+                    {role.description}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================= */}
+      {/* TEAM / HACKATHON */}
+      {/* ========================================================= */}
+
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#050816] py-20">
+        <div className="absolute inset-0 skillforge-network opacity-60" />
+
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-6 md:flex-row">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-cyan-300">
+              <Sparkles size={16} />
+              AI-POWERED PERSONALIZED LEARNING
+            </div>
+
+            <h2 className="mt-4 text-3xl font-bold">
+              Built by a team of 5 passionate learners
+            </h2>
+
+            <p className="mt-3 text-slate-400">
+              Building the future of intelligent personalized learning.
+            </p>
+          </div>
+
+          <div className="flex -space-x-3">
+            {[1, 2, 3, 4, 5].map((member) => (
+              <div
+                key={member}
+                className="grid h-14 w-14 place-items-center rounded-full border-2 border-[#050816] bg-gradient-to-br from-violet-500/30 to-cyan-400/20"
+              >
+                <CircleDot size={21} className="text-slate-300" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-[#030510]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+          <p>SkillForge · AI-Powered Personalized Learning</p>
+
+          <p>
+            {domains.length} domains · {roles.length} career tracks ·{" "}
+            {graph.skills.length} skills
+          </p>
         </div>
       </footer>
     </main>

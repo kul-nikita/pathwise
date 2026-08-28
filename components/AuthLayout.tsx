@@ -1,18 +1,32 @@
 import Link from "next/link";
-import { GitBranch, Gauge, Award } from "lucide-react";
-import { card } from "@/lib/ui";
+import {
+  BrainCircuit,
+  GitBranch,
+  Sparkles,
+  Award,
+  ArrowLeft,
+  Network,
+  Target
+} from "lucide-react";
 
-const POINTS = [
-  { icon: GitBranch, text: "Sequencing is a graph traversal, never a model's opinion." },
-  { icon: Gauge, text: "Every recommendation shows its six score components." },
-  { icon: Award, text: "Each milestone produces a capability record, not a badge." }
+const FEATURES = [
+  {
+    icon: GitBranch,
+    title: "Skill dependency intelligence",
+    text: "Your learning sequence follows real prerequisites."
+  },
+  {
+    icon: BrainCircuit,
+    title: "AI-personalized recommendations",
+    text: "Recommendations adapt to your goals, skills and progress."
+  },
+  {
+    icon: Award,
+    title: "Evidence-based progress",
+    text: "Milestones show what you can actually demonstrate."
+  }
 ];
 
-/**
- * Shared by /login and /signup. The panel on the right is not decoration —
- * a sign-in page with a lone card and no context reads as unfinished, and this
- * is the first screen a judge sees after the landing page.
- */
 export function AuthLayout({
   children,
   title,
@@ -23,59 +37,165 @@ export function AuthLayout({
   subtitle: string;
 }) {
   return (
-    <main className="grid min-h-screen lg:grid-cols-2" id="main">
-      <div className="flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          <Link
-            className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-ink"
-            href="/"
-          >
-            <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-md bg-teal">
-              <svg fill="none" height="16" viewBox="0 0 16 16" width="16">
-                <path
-                  d="M3 12.5 7 3l2.2 5.2L13 5.5"
-                  stroke="white"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-              </svg>
-            </span>
-            SkillForge
-          </Link>
+    <main className="auth-page" id="main">
 
-          <h1 className="font-display mt-8 text-3xl font-semibold tracking-tight text-ink">
-            {title}
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-muted">{subtitle}</p>
+      {/* Background */}
+      <div className="auth-background">
+        <div className="auth-grid" />
+        <div className="auth-glow auth-glow-one" />
+        <div className="auth-glow auth-glow-two" />
+        <div className="auth-glow auth-glow-three" />
 
-          <div className={`${card} mt-6 p-6`}>{children}</div>
+        <div className="network network-one">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+
+        <div className="network network-two">
+          <span />
+          <span />
+          <span />
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-ink px-12 py-16 lg:flex lg:flex-col lg:justify-center">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, #0f766e 0, transparent 45%), radial-gradient(circle at 80% 70%, #0b5f59 0, transparent 40%)"
-          }}
-        />
-        <div className="relative">
-          <p className="font-display text-2xl font-semibold leading-snug text-white">
-            Know what to learn next — and be able to prove you learned it.
+      {/* Top bar */}
+      <header className="auth-topbar">
+        <Link href="/" className="auth-logo">
+          <span className="logo-mark">
+            <Sparkles size={17} />
+          </span>
+          <span>SkillForge</span>
+        </Link>
+
+        <Link href="/" className="back-home">
+          <ArrowLeft size={15} />
+          Back to home
+        </Link>
+      </header>
+
+      <div className="auth-content">
+
+        {/* LEFT SIDE */}
+        <section className="auth-left">
+
+          <div className="auth-badge">
+            <Sparkles size={14} />
+            <span>PERSONALIZED LEARNING</span>
+          </div>
+
+          <h1 className="auth-title">
+            {title}
+          </h1>
+
+          <p className="auth-subtitle">
+            {subtitle}
           </p>
-          <ul className="mt-10 space-y-5">
-            {POINTS.map((point) => (
-              <li className="flex gap-3" key={point.text}>
-                <point.icon aria-hidden="true" className="mt-0.5 shrink-0 text-teal-soft" size={18} />
-                <span className="text-sm leading-6 text-white/75">{point.text}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
+
+          <div className="auth-form-wrapper">
+            {children}
+          </div>
+
+          <div className="privacy-note">
+            <span className="privacy-dot" />
+            Your learning profile stays private and under your control.
+          </div>
+        </section>
+
+        {/* RIGHT SIDE */}
+        <section className="auth-visual">
+
+          <div className="visual-orbit orbit-one" />
+          <div className="visual-orbit orbit-two" />
+          <div className="visual-orbit orbit-three" />
+
+          <div className="floating-node node-a">
+            <Network size={18} />
+          </div>
+
+          <div className="floating-node node-b">
+            <Target size={18} />
+          </div>
+
+          <div className="floating-node node-c">
+            <BrainCircuit size={19} />
+          </div>
+
+          <div className="ai-card">
+
+            <div className="ai-card-header">
+              <div className="ai-icon">
+                <BrainCircuit size={22} />
+              </div>
+
+              <div>
+                <div className="ai-label">
+                  YOUR AI LEARNING SYSTEM
+                </div>
+
+                <h2>
+                  Learn with a path
+                  <br />
+                  built around you.
+                </h2>
+              </div>
+            </div>
+
+            <div className="ai-description">
+              SkillForge understands where you are,
+              where you want to go, and builds the
+              sequence in between.
+            </div>
+
+            <div className="feature-list">
+
+              {FEATURES.map((feature, index) => {
+                const Icon = feature.icon;
+
+                return (
+                  <div className="feature-item" key={feature.title}>
+
+                    <div className="feature-number">
+                      0{index + 1}
+                    </div>
+
+                    <div className="feature-icon">
+                      <Icon size={18} />
+                    </div>
+
+                    <div className="feature-content">
+                      <h3>{feature.title}</h3>
+                      <p>{feature.text}</p>
+                    </div>
+
+                  </div>
+                );
+              })}
+
+            </div>
+
+            <div className="ai-status">
+              <div className="status-pulse" />
+
+              <div>
+                <span>AI ENGINE</span>
+                <strong>Continuously personalizing</strong>
+              </div>
+
+              <div className="status-bars">
+                <i />
+                <i />
+                <i />
+                <i />
+                <i />
+                <i />
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
