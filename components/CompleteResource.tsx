@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Award, CheckCircle2, Loader2 } from "lucide-react";
+import { Award, CheckCircle2, Loader2, MessageSquare } from "lucide-react";
+import { InterviewFlow } from "@/components/InterviewFlow";
 
 type Question = {
   id: string;
@@ -28,11 +29,16 @@ type Outcome = {
  */
 export function CompleteResource({
   resourceId,
+  skillId,
+  skillName,
   onCompleted
 }: {
   resourceId: string;
+  skillId?: string;
+  skillName?: string;
   onCompleted?: (mastery: Record<string, number>) => void;
 }) {
+  const [mode, setMode] = useState<"choose" | "quiz" | "interview">("choose");
   const [open, setOpen] = useState(false);
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [picked, setPicked] = useState<Record<string, number>>({});
@@ -42,7 +48,7 @@ export function CompleteResource({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function start() {
+  async function startQuiz() {
     setBusy(true);
     setError(null);
     try {
@@ -54,6 +60,7 @@ export function CompleteResource({
       }
       setQuestions(data.questions);
       setOpen(true);
+      setMode("quiz");
     } catch {
       setError("Could not reach the server.");
     } finally {
@@ -155,18 +162,77 @@ export function CompleteResource({
     );
   }
 
+  // Interview mode
+  if (mode === "interview" && skillId && skillName) {
+    return (
+      <div className="mt-4">
+        <InterviewFlow
+          resourceId={resourceId}
+          skillId={skillId}
+          skillName={skillName}
+          onComplete={(evidenceId) => {
+            if (evidenceId) {
+              setOutcome({
+                persisted: true,
+                score: 0,
+                bySkill: [],
+                evidence: {
+                  evidenceType: "verification-interview",
+                  validatedCapabilities: ["Passed AI verification interview"]
+                }
+              });
+            } else {
+              setMode("choose");
+            }
+          }}
+          onCancel={() => setMode("choose")}
+        />
+      </div>
+    );
+  }
+
+  // Choice mode - offer both options
   if (!open) {
     return (
       <div className="mt-4">
-        <button
-          className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-teal disabled:opacity-60"
-          disabled={busy}
-          onClick={start}
-          type="button"
-        >
-          {busy ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : null}
-          I finished this
-        </button>
+        {mode === "choose" && skillId && skillName ? (
+          <div className="rounded-md border border-border bg-canvas p-4">
+            <h4 className="font-medium text-ink">How would you like to verify this?</h4>
+            <p className="mt-1 text-sm text-muted">
+              Choose how to demonstrate your understanding of this resource.
+            </p>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-teal disabled:opacity-60"
+                disabled={busy}
+                onClick={startQuiz}
+                type="button"
+              >
+                {busy ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : null}
+                Quick Post-Check Quiz
+              </button>
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-teal px-4 text-sm font-semibold text-white hover:bg-teal-strong disabled:opacity-60"
+                disabled={busy}
+                onClick={() => setMode("interview")}
+                type="button"
+              >
+                <MessageSquare size={16} />
+                AI Verification Interview
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-teal disabled:opacity-60"
+            disabled={busy}
+            onClick={startQuiz}
+            type="button"
+          >
+            {busy ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : null}
+            I finished this
+          </button>
+        )}
         {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
       </div>
     );

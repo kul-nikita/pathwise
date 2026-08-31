@@ -3,6 +3,7 @@ import { questionBank } from "@/lib/diagnostic/questions";
 import type { DiagnosticQuestion } from "@/lib/diagnostic/types";
 import type { LearningEvent } from "@/lib/adaptation/mastery";
 import type { Evidence, LearningResource, ResourceType, Skill } from "@/lib/types";
+import { signEvidence } from "@/lib/crypto/signing";
 
 /** Two questions per taught skill — the same ladder depth the diagnostic uses. */
 export const CHECK_QUESTIONS_PER_SKILL = 2;
@@ -149,7 +150,7 @@ export function completionEvidence({
   artifactUrl: string | null;
   skills: Skill[];
   timestamp: string;
-}): Omit<Evidence, "id"> | null {
+}): Omit<Evidence, "id" | "signature"> | null {
   if (!resource.evidenceType || overall < EVIDENCE_THRESHOLD) {
     return null;
   }

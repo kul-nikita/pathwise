@@ -7,6 +7,9 @@ const NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/diagnostic", label: "Diagnostic" },
   { href: "/evidence", label: "Evidence" },
+  { href: "/graph", label: "Skill Graph" },
+  { href: "/gap-analyzer", label: "JD Gap" },
+  { href: "/match-score", label: "Match Score" },
 ];
 
 export function SiteHeader({
