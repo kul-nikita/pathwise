@@ -45,7 +45,8 @@ export const evidenceSchema = z.object({
   artifactUrl: z.string().url().nullable(),
   rubricScore: masteryScoreSchema,
   validatedCapabilities: z.array(z.string()).min(1),
-  createdAt: z.string()
+  createdAt: z.string(),
+  signature: z.string()
 });
 
 export const learningResourceSchema = z.object({

@@ -987,7 +987,8 @@ export const demoEvidence: Evidence[] = [
       "Read and reason about file permissions and ownership",
       "Chain command-line tools to extract a specific value"
     ],
-    createdAt: "2026-07-14"
+    createdAt: "2026-07-14",
+    signature: "demo-signature-linux-bandit"
   },
   {
     id: "ev-log-bruteforce",
@@ -1003,7 +1004,8 @@ export const demoEvidence: Evidence[] = [
       "Distinguish a brute-force burst from normal service account noise",
       "Write a remediation recommendation an on-call engineer can act on"
     ],
-    createdAt: "2026-07-28"
+    createdAt: "2026-07-28",
+    signature: "demo-signature-log-bruteforce"
   },
   {
     id: "ev-siem-detections",
@@ -1019,7 +1021,8 @@ export const demoEvidence: Evidence[] = [
       "Express a detection idea as an executable query",
       "Tune a noisy rule using baseline context instead of disabling it"
     ],
-    createdAt: "2026-08-11"
+    createdAt: "2026-08-11",
+    signature: "demo-signature-siem-detections"
   }
 ];
 

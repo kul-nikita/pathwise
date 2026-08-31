@@ -1,4 +1,7 @@
-import { Award, Check, FileText } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Award, Check, Copy, FileText } from "lucide-react";
 import type { Evidence, Skill } from "@/lib/types";
 
 export function EvidenceCard({
@@ -10,6 +13,19 @@ export function EvidenceCard({
   resourceTitle?: string;
   skill?: Skill;
 }) {
+  const [copied, setCopied] = useState(false);
+
+  function getShareUrl() {
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/verify/${evidence.id}?sig=${evidence.signature}`;
+  }
+
+  async function copyShareLink() {
+    await navigator.clipboard.writeText(getShareUrl());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <article className="rounded-lg border border-border bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -63,7 +79,26 @@ export function EvidenceCard({
         </ul>
       </div>
 
-      <p className="mt-4 text-xs text-muted">Recorded {evidence.createdAt}</p>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+        <p className="text-xs text-muted">Recorded {evidence.createdAt}</p>
+        <button
+          onClick={copyShareLink}
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-canvas px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-surface-sunken"
+        >
+          {copied ? (
+            <>
+              <Check size={12} className="text-teal" />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy size={12} />
+              Copy Share Link
+            </>
+          )}
+        </button>
+      </div>
     </article>
   );
 }

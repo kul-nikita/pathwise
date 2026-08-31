@@ -10,6 +10,7 @@ import {
   completionEvidence,
   gradeCompletion
 } from "@/lib/services/completion";
+import { signEvidence } from "@/lib/crypto/signing";
 
 export const dynamic = "force-dynamic";
 

@@ -118,6 +118,8 @@ export type Evidence = {
   rubricScore: number;
   validatedCapabilities: string[];
   createdAt: string;
+  /** HMAC-SHA256 signature for tamper-proof verification. */
+  signature: string;
 };
 
 export type ScoreBreakdown = {

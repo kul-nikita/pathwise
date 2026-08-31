@@ -14,13 +14,15 @@ import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 import { ExplainButton } from "@/components/ExplainButton";
 import { ResourceSearch } from "@/components/ResourceSearch";
 import { SkillHeatmap } from "@/components/SkillHeatmap";
+import { ReadinessTimeline } from "@/components/ReadinessTimeline";
 import { buildRoadmap, candidatesForGap } from "@/lib/services/recommendations";
-import { getMastery, getProfile, listEvidence } from "@/lib/db/learners";
-import { listDomains, listRoles } from "@/lib/graph/queries";
+import { getMastery, getProfile, listEvidence, listEvents } from "@/lib/db/learners";
+import { listDomains, listRoles, getSkillGraph } from "@/lib/graph/queries";
 import { DEFAULT_PREFERENCES, DEFAULT_WEEKLY_HOURS } from "@/lib/constants";
 import { requireUserOrRedirect } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
 import { SiteHeader } from "@/components/SiteHeader";
+import { predictTimeline } from "@/lib/prediction/timeline";
 
 export const dynamic = "force-dynamic";
 
@@ -28,12 +30,14 @@ export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const user = await requireUserOrRedirect("/dashboard");
-  const [profile, mastery, evidence, roles, domains] = await Promise.all([
+  const [profile, mastery, evidence, roles, domains, events, graph] = await Promise.all([
     getProfile(user.id),
     getMastery(user.id),
     listEvidence(user.id),
     listRoles(),
-    listDomains()
+    listDomains(),
+    listEvents(user.id),
+    getSkillGraph()
   ]);
 
   const targetRoleId = profile?.targetRoleId ?? roles[0]?.id;
@@ -53,6 +57,12 @@ export default async function DashboardPage() {
   const preferences = profile?.preferences ?? DEFAULT_PREFERENCES;
   const weeklyHours = profile?.weeklyHours ?? DEFAULT_WEEKLY_HOURS;
   const roadmap = await buildRoadmap(targetRoleId, mastery);
+
+  // Compute timeline prediction
+  const role = roles.find((r) => r.id === targetRoleId);
+  const timelineData = role
+    ? predictTimeline({ profile, mastery, role, graph, events })
+    : null;
   const firstUnlockedGap =
     roadmap.gaps.find((gap) => gap.skill.prerequisites.every((id) => (mastery[id] ?? 0) >= 0.6)) ??
     roadmap.gaps[0];
@@ -303,6 +313,18 @@ export default async function DashboardPage() {
         <section className="mx-auto max-w-7xl px-6 pb-6">
           <SkillHeatmap gaps={roadmap.gaps} mastered={roadmap.mastered} mastery={mastery} />
         </section>
+
+        {timelineData && role && (
+          <section className="mx-auto max-w-7xl px-6 pb-6">
+            <ReadinessTimeline
+              data={{
+                role: { id: role.id, title: role.title },
+                prediction: timelineData,
+                currentReadiness: roadmap.readiness
+              }}
+            />
+          </section>
+        )}
 
         <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 lg:grid-cols-2">
           <article className="rounded-lg border border-white/10 bg-surface/95 shadow-card">
