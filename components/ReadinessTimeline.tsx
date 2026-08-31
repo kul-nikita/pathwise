@@ -35,7 +35,7 @@ export function ReadinessTimeline({ data }: { data: TimelineData }) {
   const chartData = prediction.dataPoints;
 
   return (
-    <article className="rounded-lg border border-border bg-white p-5">
+    <article className="rounded-lg border border-border bg-surface p-5">
       <div className="flex items-center gap-2">
         <TrendingUp aria-hidden="true" className="text-teal" size={20} />
         <h2 className="text-lg font-semibold">Predicted Readiness Timeline</h2>
@@ -79,27 +79,28 @@ export function ReadinessTimeline({ data }: { data: TimelineData }) {
                 <stop offset="100%" stopColor="#14b8a6" stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis
               dataKey="week"
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#94a3b8" }}
               tickLine={false}
-              axisLine={{ stroke: "#e5e7eb" }}
-              label={{ value: "Weeks", position: "insideBottomRight", offset: -5, fontSize: 12 }}
+              axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
+              label={{ value: "Weeks", position: "insideBottomRight", offset: -5, fontSize: 12, fill: "#94a3b8" }}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#94a3b8" }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => `${v}%`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "white",
-                border: "1px solid #e5e7eb",
+                backgroundColor: "#0b1026",
+                border: "1px solid rgba(255,255,255,0.15)",
                 borderRadius: "8px",
-                fontSize: "12px"
+                fontSize: "12px",
+                color: "#f8fafc"
               }}
               formatter={(value: number, name: string) => {
                 if (name === "readiness") return [`${Math.round(value)}%`, "Expected"];
@@ -120,7 +121,7 @@ export function ReadinessTimeline({ data }: { data: TimelineData }) {
               type="monotone"
               dataKey="lower"
               stroke="none"
-              fill="white"
+              fill="#0b1026"
               stackId="1"
             />
             {/* Main line */}

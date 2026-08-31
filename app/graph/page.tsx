@@ -62,7 +62,7 @@ export default async function GraphPage() {
     <>
       <SiteHeader current="/graph" showAdmin={isAdmin(user)} user={user} />
       <main className="min-h-screen bg-canvas">
-        <section className="border-b border-border bg-white">
+        <section className="border-b border-border bg-surface">
           <div className="mx-auto max-w-6xl px-6 py-8">
             <h1 className="font-display text-3xl tracking-tight font-semibold text-ink">
               Skill Graph Explorer

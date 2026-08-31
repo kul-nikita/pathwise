@@ -47,9 +47,9 @@ type GapAnalysisResult = {
 };
 
 const STATUS_CONFIG = {
-  mastered: { color: "text-emerald-600 bg-emerald-50", icon: Check, label: "Mastered" },
-  partial: { color: "text-amber-600 bg-amber-50", icon: AlertTriangle, label: "Partial" },
-  missing: { color: "text-red-600 bg-red-50", icon: X, label: "Missing" }
+  mastered: { color: "text-emerald-300 bg-emerald-500/10", icon: Check, label: "Mastered" },
+  partial: { color: "text-amber-300 bg-amber-500/10", icon: AlertTriangle, label: "Partial" },
+  missing: { color: "text-red-300 bg-red-500/10", icon: X, label: "Missing" }
 };
 
 export function GapAnalysis({ roleId }: { roleId: string }) {
@@ -74,10 +74,14 @@ export function GapAnalysis({ roleId }: { roleId: string }) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed: ${res.status}`);
+        const msg = typeof body.error === "string" ? body.error : `Request failed: ${res.status}`;
+        throw new Error(msg);
       }
 
       const data = await res.json();
+      if (!data.gapAnalysis) {
+        throw new Error("No target role set — complete onboarding first.");
+      }
       setResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -89,7 +93,7 @@ export function GapAnalysis({ roleId }: { roleId: string }) {
   return (
     <div className="space-y-6">
       {/* Input */}
-      <div className="rounded-lg border border-border bg-white p-6">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <h2 className="text-lg font-semibold text-ink">Paste a Job Description</h2>
         <p className="mt-1 text-sm text-muted">
           We&apos;ll extract the required skills and show how you match against them.
@@ -123,7 +127,7 @@ export function GapAnalysis({ roleId }: { roleId: string }) {
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300">
           {error}
         </div>
       )}
@@ -132,7 +136,7 @@ export function GapAnalysis({ roleId }: { roleId: string }) {
       {result && (
         <div className="space-y-6">
           {/* Job Header */}
-          <div className="rounded-lg border border-border bg-white p-6">
+          <div className="rounded-lg border border-border bg-surface p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-ink">{result.jobTitle}</h2>
@@ -155,7 +159,7 @@ export function GapAnalysis({ roleId }: { roleId: string }) {
           </div>
 
           {/* Matched Skills */}
-          <div className="rounded-lg border border-border bg-white p-6">
+          <div className="rounded-lg border border-border bg-surface p-6">
             <h3 className="text-lg font-semibold text-ink">
               Matched Skills ({result.gapAnalysis.matched.length})
             </h3>
@@ -200,7 +204,7 @@ export function GapAnalysis({ roleId }: { roleId: string }) {
 
           {/* Unmatched Skills */}
           {result.gapAnalysis.unmatched.length > 0 && (
-            <div className="rounded-lg border border-border bg-white p-6">
+            <div className="rounded-lg border border-border bg-surface p-6">
               <h3 className="text-lg font-semibold text-ink">
                 Skills Not in Your Learning Path ({result.gapAnalysis.unmatched.length})
               </h3>

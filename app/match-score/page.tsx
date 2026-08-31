@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { MatchScoreCard } from "@/components/MatchScoreCard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { requireUserOrRedirect } from "@/lib/auth/session";
@@ -14,11 +15,15 @@ export default async function MatchScorePage() {
   const user = await requireUserOrRedirect("/match-score");
   const profile = await getProfile(user.id);
 
+  if (!profile?.targetRoleId) {
+    redirect("/onboarding");
+  }
+
   return (
     <>
       <SiteHeader current="/match-score" showAdmin={isAdmin(user)} user={user} />
       <main className="min-h-screen bg-canvas">
-        <section className="border-b border-border bg-white">
+        <section className="border-b border-border bg-surface">
           <div className="mx-auto max-w-4xl px-6 py-8">
             <h1 className="font-display text-3xl tracking-tight font-semibold text-ink">
               Am I Ready?
@@ -31,7 +36,7 @@ export default async function MatchScorePage() {
         </section>
 
         <div className="mx-auto max-w-4xl px-6 py-8">
-          <MatchScoreCard roleId={profile?.targetRoleId ?? ""} />
+          <MatchScoreCard roleId={profile.targetRoleId} />
         </div>
       </main>
     </>

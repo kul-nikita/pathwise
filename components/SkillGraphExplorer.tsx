@@ -89,7 +89,7 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
                 ele.data("isRequired") ? 50 : 40,
               "border-width": (ele: any) =>
                 ele.data("isRequired") ? 3 : 1,
-              "border-color": "#374151",
+              "border-color": "#64748b",
               "text-wrap": "wrap",
               "text-max-width": "80px"
             }
@@ -182,13 +182,13 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
   return (
     <div className="relative">
       {/* Graph Container */}
-      <div className="relative rounded-lg border border-border bg-white">
+      <div className="relative rounded-lg border border-border bg-surface">
         {/* Controls */}
         <div className="absolute right-3 top-3 z-10 flex gap-1">
           <button
             onClick={zoomIn}
             type="button"
-            className="rounded-md border border-border bg-white p-2 text-ink hover:bg-canvas"
+            className="rounded-md border border-border bg-surface p-2 text-ink hover:bg-canvas"
             title="Zoom in"
           >
             <ZoomIn size={16} />
@@ -196,7 +196,7 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
           <button
             onClick={zoomOut}
             type="button"
-            className="rounded-md border border-border bg-white p-2 text-ink hover:bg-canvas"
+            className="rounded-md border border-border bg-surface p-2 text-ink hover:bg-canvas"
             title="Zoom out"
           >
             <ZoomOut size={16} />
@@ -204,7 +204,7 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
           <button
             onClick={fitToView}
             type="button"
-            className="rounded-md border border-border bg-white p-2 text-ink hover:bg-canvas"
+            className="rounded-md border border-border bg-surface p-2 text-ink hover:bg-canvas"
             title="Fit to view"
           >
             <Maximize2 size={16} />
@@ -212,7 +212,7 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
         </div>
 
         {/* Legend */}
-        <div className="absolute left-3 top-3 z-10 rounded-md border border-border bg-white p-3 text-xs">
+        <div className="absolute left-3 top-3 z-10 rounded-md border border-border bg-surface p-3 text-xs text-muted">
           <div className="font-medium text-ink">Mastery</div>
           <div className="mt-2 space-y-1">
             <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
         />
 
         {/* Instructions */}
-        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-md border border-border bg-white px-3 py-2 text-xs text-muted">
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-xs text-muted">
           <Info size={14} />
           Click a node to see details. Hover to highlight prerequisites.
         </div>
@@ -259,7 +259,7 @@ export function SkillGraphExplorer({ data }: { data: SkillGraphData }) {
 
       {/* Skill Detail Panel */}
       {selectedSkill && (
-        <div className="mt-4 rounded-lg border border-border bg-white p-5">
+        <div className="mt-4 rounded-lg border border-border bg-surface p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">

@@ -84,7 +84,7 @@ export function EvidenceCard({
         <button
           onClick={copyShareLink}
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-canvas px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-white"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-canvas px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-surface-sunken"
         >
           {copied ? (
             <>

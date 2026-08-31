@@ -51,7 +51,8 @@ export function InterviewFlow({
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed: ${res.status}`);
+        const msg = typeof body.error === "string" ? body.error : `Request failed: ${res.status}`;
+        throw new Error(msg);
       }
 
       const data = await res.json();
@@ -105,7 +106,8 @@ export function InterviewFlow({
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed: ${res.status}`);
+        const msg = typeof body.error === "string" ? body.error : `Request failed: ${res.status}`;
+        throw new Error(msg);
       }
 
       const data = await res.json();
@@ -123,7 +125,7 @@ export function InterviewFlow({
   const allAnswered = questions.every((q) => (answers[q.id] || "").trim().length >= 10);
 
   return (
-    <div className="rounded-lg border border-border bg-white p-6">
+    <div className="rounded-lg border border-border bg-surface p-6">
       {/* Intro */}
       {step === "intro" && (
         <div>
@@ -194,7 +196,7 @@ export function InterviewFlow({
           </div>
 
           {/* Progress */}
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
             <div
               className="h-full rounded-full bg-teal transition-all"
               style={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
@@ -288,7 +290,7 @@ export function InterviewFlow({
                 <path
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
-                  stroke="#e5e7eb"
+                  stroke="rgba(255,255,255,0.12)"
                   strokeWidth="3"
                 />
                 <path
@@ -329,8 +331,8 @@ export function InterviewFlow({
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
                       grading.scores[i] >= 0.5
-                        ? "bg-emerald-50 text-emerald-600"
-                        : "bg-red-50 text-red-600"
+                        ? "bg-emerald-500/10 text-emerald-300"
+                        : "bg-red-500/10 text-red-300"
                     }`}
                   >
                     {Math.round(grading.scores[i] * 100)}%
@@ -384,7 +386,7 @@ export function InterviewFlow({
 
       {/* Error */}
       {error && (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mt-4 rounded-md border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300">
           {error}
         </div>
       )}
