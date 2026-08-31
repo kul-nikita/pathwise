@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "@/lib/db/mongo";
 import { deriveMasteryFromEvents, type LearningEvent } from "@/lib/adaptation/mastery";
 import type { Evidence, LearnerProfile, MasteryMap } from "@/lib/types";
+import { signEvidence } from "@/lib/crypto/signing";
 
 async function collections() {
   const db = await getDb();
@@ -65,11 +66,18 @@ export async function listEvidence(learnerId: string): Promise<Evidence[]> {
   return evidence.find({ learnerId }, { projection: { _id: 0 } }).sort({ createdAt: 1 }).toArray();
 }
 
-export async function addEvidence(record: Omit<Evidence, "id">): Promise<Evidence> {
+export async function getEvidenceById(evidenceId: string): Promise<Evidence | null> {
   const { evidence } = await collections();
-  const withId: Evidence = { ...record, id: randomUUID() };
-  await evidence.insertOne(withId);
-  return withId;
+  return evidence.findOne({ id: evidenceId }, { projection: { _id: 0 } });
+}
+
+export async function addEvidence(record: Omit<Evidence, "id" | "signature">): Promise<Evidence> {
+  const { evidence } = await collections();
+  const id = randomUUID();
+  const signature = signEvidence({ ...record, id });
+  const withIdAndSignature: Evidence = { ...record, id, signature };
+  await evidence.insertOne(withIdAndSignature);
+  return withIdAndSignature;
 }
 
 /** Product rule 5: learners can export and delete everything we hold. */
