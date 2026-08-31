@@ -1,5 +1,14 @@
 # Build Plan
 
+> **This is the original three-day hackathon plan, kept for the demo script
+> and the judging-criteria mapping.** The build has since gone well past it —
+> nine domains and 19 career paths rather than three security roles, plus the
+> portfolio surfaces (JD gap analyzer, match score, skill-graph explorer,
+> readiness timeline, verification interview, signed evidence). Current state
+> is tracked in `CLAUDE.md` → **Status**. Where a non-goal below ("multi-domain
+> support beyond the three security roles") conflicts with what shipped, the
+> Status log wins.
+
 ## Day 1 — Foundation
 
 - [ ] Repo scaffolded (Next.js + TS + Tailwind + shadcn/ui); Neo4j AuraDB,

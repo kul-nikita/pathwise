@@ -2,12 +2,27 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 const ALGORITHM = "sha256";
 
+// Falls back like GEMINI_API_KEY does, rather than throwing like MONGODB_URI:
+// a missing secret must not break the learn -> prove loop for a local or demo
+// deployment. Signatures stay internally consistent (mint and verify use the
+// same value), they are just not secret. Set EVIDENCE_SIGNING_SECRET in any
+// deployment where a shared evidence link needs to be unforgeable.
+const DEV_FALLBACK_SECRET = "skillforge-dev-evidence-signing-secret";
+let warnedAboutFallback = false;
+
 function getSecret(): string {
   const secret = process.env.EVIDENCE_SIGNING_SECRET;
-  if (!secret) {
-    throw new Error("EVIDENCE_SIGNING_SECRET is required for evidence signing.");
+  if (secret) {
+    return secret;
   }
-  return secret;
+  if (!warnedAboutFallback) {
+    console.warn(
+      "[signing] EVIDENCE_SIGNING_SECRET is not set — using a well-known dev key. " +
+        "Evidence signatures will not be unforgeable. Set it before relying on /verify."
+    );
+    warnedAboutFallback = true;
+  }
+  return DEV_FALLBACK_SECRET;
 }
 
 /**

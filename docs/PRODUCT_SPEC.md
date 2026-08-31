@@ -1,5 +1,10 @@
 # Product Spec
 
+> The worked example below stays a Junior SOC Analyst because it is the
+> sharpest thing to demo. The engine itself is domain-agnostic and now ships
+> nine domains / 19 career paths — the planner, scoring, diagnostic and graph
+> queries did not change to add them. See `CLAUDE.md` → **Status**.
+
 ## Problem
 
 Learners have thousands of courses available and no trustworthy way to
@@ -94,6 +99,13 @@ Validated capabilities:
 This is the single most compelling thing to show judges — it's the moment
 the product stops looking like "a progress bar" and starts looking like an
 internship-ready portfolio.
+
+Each card is signed (HMAC over its own fields) and carries a **Copy Share
+Link** to a public `/verify/<id>` page that recomputes the signature — so a
+recruiter can confirm the record hasn't been edited without needing an
+account. A stronger evidence entry comes from the optional **AI verification
+interview**: five scenario questions graded server-side, in place of the
+multiple-choice post-check.
 
 ## Positioning
 

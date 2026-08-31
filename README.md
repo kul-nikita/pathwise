@@ -49,6 +49,58 @@ in place — which is what makes a replan explainable after the fact.
 
 ---
 
+## From plan to proof
+
+The roadmap is the start. Five surfaces turn it into something a learner can
+show a recruiter, and each one keeps the same discipline as the core — the
+graph and the catalog supply the facts, the LLM only phrases them.
+
+### Job-description gap analyzer (`/gap-analyzer`)
+
+Paste a real posting. Gemini extracts the skills it names — required vs.
+nice-to-have, with a confidence score and the exact phrase each came from — and
+the backend maps them onto the target role's skill graph. The model can name a
+skill; only the graph decides whether it exists and how it sequences. Output is
+your mastery per matched skill, the skills the JD wants that aren't in your
+path, and the missing ones in prerequisite order.
+
+### Match score (`/match-score`)
+
+A single readiness percentage against a role's own required-skill set, weighted
+by each skill's importance, with a per-skill breakdown (mastered / partial /
+missing). No model call — it is the same mastery map the dashboard reads,
+scored by a formula you can check.
+
+### Skill graph explorer (`/graph`)
+
+The actual Neo4j prerequisite graph for your role, rendered with Cytoscape,
+nodes coloured by mastery. Click a skill for its prerequisites (with your
+mastery on each) and the resources that teach it; hover to highlight everything
+that must come first.
+
+### Predicted readiness timeline
+
+On the dashboard: weeks-to-job-ready projected from your current pace and
+remaining hours, with a confidence band, and a job-ready threshold line at
+80%. It recomputes every time you complete a resource — it is a projection of
+the event log, not a promise.
+
+### AI verification interview
+
+An alternative to the post-check quiz when finishing a resource: five
+scenario questions about the skill, answered in prose, graded server-side on
+accuracy and depth. A pass mints a higher-confidence evidence entry
+(`verification-interview`) — still server-graded, still not self-reported.
+
+### Verifiable evidence
+
+Every evidence record is signed with an HMAC over its own fields at mint time.
+Each card carries a **Copy Share Link** to a public `/verify/<id>?sig=…` page
+that recomputes the signature and shows whether the record is intact and
+unedited — so the wallet is checkable by someone who was never logged in.
+
+---
+
 ## What is in the catalog
 
 | | |
@@ -58,7 +110,7 @@ in place — which is what makes a replan explainable after the fact.
 | Skills | 96 |
 | Learning resources | 225 (224 free) |
 | Diagnostic questions | 288 |
-| Unit tests | 107 |
+| Unit tests | 112 |
 
 Cybersecurity · Data & Analytics · Web Development · Cloud & DevOps ·
 AI & Machine Learning · UX & Product Design · Product Management ·
@@ -103,9 +155,14 @@ Search results that fail the gate are shown as **blocked, with the specific
 missing prerequisite named**, rather than hidden — sequencing should be visible,
 not feel like missing results.
 
-**Stack:** Next.js 15 (App Router, TypeScript) · Tailwind · Neo4j AuraDB ·
-MongoDB Atlas · Qdrant Cloud · Gemini (`gemini-2.5-flash`, `gemini-embedding-001`
-@ 768 dims, plain `fetch`, no SDK) · Vercel.
+**Stack:** Next.js 15 (App Router, TypeScript) · Tailwind · Cytoscape (skill
+graph) · Recharts (readiness timeline) · Neo4j AuraDB · MongoDB Atlas · Qdrant
+Cloud · Gemini (`gemini-2.5-flash`, `gemini-embedding-001` @ 768 dims, plain
+`fetch`, no SDK) · Vercel.
+
+The signed-in app renders on a single dark theme driven by semantic Tailwind
+tokens (`surface`, `canvas`, `ink`, `muted`, `border`, `teal`) — a page follows
+the theme by using the tokens, not by carrying its own colours.
 
 ---
 
@@ -152,7 +209,7 @@ first.
 ### Other commands
 
 ```bash
-npm run test          # 107 unit tests — planner, scoring, grounding, catalog integrity
+npm run test          # 112 unit tests — planner, scoring, grounding, catalog integrity, evidence signing
 npm run lint
 npm run build         # succeeds with no secrets; see below
 ```
@@ -245,3 +302,11 @@ Kept here deliberately rather than left for someone to discover.
   than its title.
 - **Live discovery (layer 2) is not built.** The curated catalog is the only
   content source, which is what keeps the demo deterministic and offline-safe.
+- **The JD gap analyzer and verification interview need `GEMINI_API_KEY`** and
+  have no deterministic fallback (unlike explanations). A Gemini outage returns
+  the upstream error to the surface rather than degrading — those two features
+  are simply unavailable while the key is missing or the model is down.
+- **`/verify/<id>` proves integrity, not provenance.** A valid signature means
+  the record's fields are unchanged since mint; it does not attest that the
+  learner did the work unaided — that assurance comes from the server-side
+  grading, which the verify page does not re-run.

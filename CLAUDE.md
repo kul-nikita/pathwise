@@ -59,11 +59,21 @@ failing tests.
 
 ## Scope discipline (read before adding a feature)
 
+> Two of the original rules here have been deliberately, verifiably retired:
+> the product now ships **nine domains / 19 career paths**, and the
+> verification interview **does** grade free prose (server-side, on a rubric).
+> Both were added without touching the planner, scoring or graph queries —
+> which was the actual point of the discipline. The rest of this section
+> still holds. See the **Status** log for the reasoning.
+
 Build one vertical slice extremely well. Do **not**:
-- Add a 4th target role beyond SOC Analyst / Pentester / Cloud Security
-  Associate.
-- Build a generic multi-domain recommender "for later."
-- Auto-grade freeform submissions with no rubric.
+- ~~Add a 4th target role beyond SOC Analyst / Pentester / Cloud Security
+  Associate.~~ Superseded — nine domains shipped, engine unchanged.
+- ~~Build a generic multi-domain recommender "for later."~~ It is multi-domain
+  now, but data-driven — still one engine, not a config surface.
+- Auto-grade freeform submissions **with no rubric.** (The verification
+  interview grades prose *against* a rubric, server-side — that is in scope;
+  a rubric-less "the AI liked it" is not.)
 - Depend on a live web-search API as the only content source — curated
   catalog is layer 1 and must work fully offline/deterministically for the
   demo; live discovery is an optional layer 2 enhancement.
@@ -260,10 +270,47 @@ when nothing read them at runtime. Current truth, verified:
   what it teaches, URLs may not duplicate, and hosts outside the sourcing
   allowlist need explicit confirmation.
 
-Still not true / not built: the question bank still lives in code
-(`lib/diagnostic/questions.ts` + `questions-data-analytics.ts`) rather than in
-Mongo. That is fine while domains ship with the app; it becomes a real
-limitation the moment domains are authored without a deploy.
+- **The roadmap now has portfolio and readiness surfaces, and they keep the
+  same boundary.** `/gap-analyzer` (`POST /api/jd/parse`) asks Gemini to extract
+  skills from a pasted job description — names, required/nice-to-have,
+  confidence, and the source phrase — then `matchJDSkillsToGraph` maps them onto
+  the target role's Neo4j skills. The model proposes skill names; the graph is
+  the only thing that says which exist and how they order. `/match-score`
+  (`POST /api/match-score`) and the dashboard's readiness timeline
+  (`lib/prediction/timeline.ts`) make **no model call at all** — both are
+  formulas over the same mastery map the dashboard reads. `/graph` renders the
+  real prerequisite graph with Cytoscape, coloured by mastery. Role id on all of
+  these comes from the session profile, never the request body, and
+  `/gap-analyzer` + `/match-score` redirect to `/onboarding` when no target role
+  is set rather than sending an empty id.
+
+- **Evidence is signed, and the wallet is externally checkable.** `addEvidence`
+  computes an HMAC (`lib/crypto/signing.ts`, key from `EVIDENCE_SIGNING_SECRET`
+  or a dev default) over the record's own fields at mint time and stores it as
+  `signature`. `/verify/<id>?sig=…` is a public page — no session — that
+  recomputes the signature and reports whether the record is intact. It proves
+  integrity, not that the work was unaided; that assurance still comes from the
+  server-side grading.
+
+- **Completion offers a second, harder path.** `components/CompleteResource`
+  now lets the learner choose the post-check quiz or an **AI verification
+  interview** (`POST /api/interview`, `lib/llm/interview.ts`): five scenario
+  questions graded server-side on accuracy and depth, a pass minting a
+  `verification-interview` evidence entry. Still server-graded, still not
+  self-reported.
+
+Still not true / not built:
+- The question bank still lives in code (`lib/diagnostic/questions*.ts`) rather
+  than in Mongo. Fine while domains ship with the app; a real limitation the
+  moment domains are authored without a deploy.
+- `lib/llm/jd-parsing.ts`, `lib/llm/interview.ts` and
+  `lib/prediction/timeline.ts` shipped without unit tests (`lib/crypto/signing.ts`
+  now has `signing.test.ts`). The 112-test suite covers the planner, scoring,
+  grounding, adaptation, diagnostic engine, completion, catalog integrity and
+  evidence signing.
+- The four Gemini call sites do a raw `fetch` with no retry, so a transient 503
+  from the model becomes a 500 on `/api/jd/parse` and `/api/interview` (and a
+  502 on onboarding). `/api/explain` is the only one with a fallback.
 
 ## Status
 
@@ -584,6 +631,46 @@ knows where things stand without re-deriving it.
   the documented trap in this file. It rendered pages completely unstyled and
   looked exactly like a broken retheme. The real server was on :3001.
 
+- 2026-08-31: **`main` and `skillforge-ai` reconciled onto one history.** The
+  two branches had diverged from `05c3dfa`: `main` carried a feature commit
+  (`c5f3bc0` — JD gap analyzer, match score, skill-graph explorer, readiness
+  timeline, verification interview, signed evidence) committed straight onto it,
+  while `skillforge-ai` had three later UI commits (`main` never got them). The
+  feature files were built for the **old light theme**, so on the dark shell
+  they rendered as bright islands. Merged `main` into `skillforge-ai` (two real
+  conflicts: `CompleteResource` kept `main`'s quiz-vs-interview choice with dark
+  tokens; the dashboard kept the redesign and slotted in `ReadinessTimeline`,
+  dropping a duplicate `SkillHeatmap`), then re-ran the dark migration over the
+  nine new files — `bg-white -> bg-surface`, status/error tints to translucent,
+  `bg-gray-100` tracks to `bg-white/10`, SVG rings and Recharts grid/axis/tooltip
+  to dark values, Cytoscape node border to a slate that reads on near-black.
+  `main` then fast-forwarded to match; the two are now identical.
+  Four real bugs fixed along the way:
+  **(1)** `/gap-analyzer` and `/match-score` passed `roleId=""` for a learner
+  with no target role — the API 400'd and `GapAnalysis` crashed on an absent
+  `gapAnalysis`. Both now redirect to `/onboarding`, and the component guards
+  the response.
+  **(2)** The JD/match/interview clients rendered API error bodies — which are
+  zod `flatten()` objects — as the literal string `[object Object]`. They now
+  show a message only when the server sent a string.
+  **(3)** `lib/crypto/signing.ts` **threw** when `EVIDENCE_SIGNING_SECRET` was
+  unset, and `addEvidence` calls it unconditionally — so completing a resource
+  or passing an interview would have 500'd on any deployment without that var,
+  which was in neither `.env.example` nor the deploy docs. It now falls back to
+  a well-known dev key with a one-time warning (the `GEMINI_API_KEY` pattern,
+  not the `MONGODB_URI` one); the var is now documented in both places.
+  **(4)** `.env.example` still had committed merge-conflict markers from an
+  earlier merge (the `main` side was the dead FastAPI/Postgres/Chroma scaffold).
+  Rewritten clean.
+  Verified: `tsc` clean, 112/112 unit tests (5 new in `lib/crypto/signing.test.ts`),
+  `next lint` clean, production build green (all 20 routes), a scripted
+  end-to-end run (signup -> onboarding -> seven authed pages -> `/api/match-score`
+  + `/api/prediction`) 12/12, the JD gap analyzer live (21 skills from a real
+  posting, 4 matched to the graph), and a completion -> signed evidence -> verify
+  round-trip.
+  Still not done: no unit tests for `jd-parsing`, `interview`, `timeline`; no
+  Gemini 503 retry (see "What is actually wired" -> "Still not true").
+
 - [x] Repo scaffolded; Neo4j, MongoDB, and Qdrant all connected
 - [x] Skill graph + prerequisite edges seeded in Neo4j — 9 domains, 19 roles,
       96 skills
@@ -594,18 +681,24 @@ knows where things stand without re-deriving it.
 - [x] Conversational onboarding → structured learner intent (JSON)
       (`POST /api/onboarding`; `POST /api/roadmap` accepts the resulting profile)
 - [x] Adaptive diagnostic (10–15 Qs, branching) — `POST /api/diagnostic`,
-      stateless (client posts answers so far), 42-question bank, two-question
-      ladder per skill in role-importance order
+      stateless (client posts answers so far), 288-question bank across 9
+      domains, three-tier ladder per skill in role-importance order
 - [x] Planner: gap analysis + prerequisite-valid roadmap — `POST /api/roadmap`
       returns gaps ordered so a locked skill never outranks an unlocked one,
       each carrying the specific prerequisite that blocks it
 - [x] Scoring engine + "why recommended" cards (rendered at `/diagnostic`)
-- [x] Dashboard: readiness %, skill heatmap, next action —
-      `components/SkillHeatmap.tsx` (CSS grid, no chart library; mastery drives
-      the fill but every tile also states the number, so colour is never the
-      only channel). NOTE: not yet confirmed in a browser.
+- [x] Dashboard: readiness %, skill heatmap, next action, predicted readiness
+      timeline — `components/SkillHeatmap.tsx` (CSS grid, no chart library;
+      mastery drives the fill but every tile also states the number, so colour
+      is never the only channel) + `components/ReadinessTimeline.tsx` (Recharts).
 - [x] Evidence wallet — `/evidence`, spec card format (skill, summary,
-      artifact, rubric score, validated capabilities)
+      artifact, rubric score, validated capabilities), each card signed and
+      shareable to a public `/verify/<id>` page
 - [x] Feedback → replanning loop — `lib/adaptation/replan.ts`,
       `POST /api/replan`, "Plan this week" panel on `/diagnostic`
+- [x] JD gap analyzer (`/gap-analyzer`), role match score (`/match-score`),
+      skill-graph explorer (`/graph`), AI verification interview
+      (`/api/interview`, offered from `components/CompleteResource`)
+- [x] Catalog admin surface — `/admin`, writes Mongo + Neo4j + Qdrant in one
+      action behind the `ADMIN_EMAILS` allowlist
 - [ ] 3 demo scenarios rehearsed (see `docs/BUILD_PLAN.md`)

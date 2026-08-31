@@ -108,8 +108,12 @@ learning_resources  { _id, title, provider, url, resourceType,   // video/course
 events              { _id, learnerId, verb, objectType, objectId,
                        score, durationMinutes, timestamp, metadata: {...} }
                      // append-only, xAPI-inspired: "learner X completed lab Y, score 84"
-evidence            { _id, learnerId, skillId, resourceId, artifactUrl,
-                       rubricScore, validatedCapabilities: [...], createdAt }
+evidence            { _id, id, learnerId, skillId, resourceId, artifactUrl,
+                       evidenceType, rubricScore, validatedCapabilities: [...],
+                       createdAt, signature }
+                     // signature = HMAC-SHA256 over the record's own fields,
+                     // computed at mint time (lib/crypto/signing.ts); the
+                     // public /verify/<id> page recomputes and compares it
 ```
 
 MongoDB is the only store the app writes to at request time for anything
@@ -216,6 +220,59 @@ explicit "replan my week" action, or a learner-declared change in available
 weekly hours. Replanning re-runs gap analysis + scoring for the affected
 skills only — it should not regenerate the whole roadmap from scratch each
 time (both for cost and for UX stability).
+
+## Portfolio & readiness surfaces (read-only, additive)
+
+These sit on top of the pipeline above. None of them writes learner state
+except the verification interview, which writes through the same
+`addEvidence` path as `/api/complete`. All of them take the target role from
+the session profile, never the request body.
+
+### Job-description parsing (`lib/llm/jd-parsing.ts`, `/api/jd/parse`)
+
+Gemini extracts skills from pasted JD text under a strict `responseSchema`:
+`{ name, required, confidence, originalText }` per skill plus `jobTitle` and
+`company`. This is the **one place the model originates a term** — a skill
+name it read in the posting. It is contained immediately: `matchJDSkillsToGraph`
+looks each name up in the Neo4j skill set (case-insensitive exact match), and
+anything with no match is reported as "not in your path", never invented into
+the graph. Ordering, prerequisites and mastery all still come from the graph
+and the event log. Overall match is a confidence- and importance-weighted
+ratio of demonstrated to required skills — the same shape as the scoring
+formula, not a model judgement.
+
+### Match score (`computeRoleMatchScore`, `/api/match-score`)
+
+No model call. For each of the role's `REQUIRES` skills:
+`status = mastered (≥0.8) | partial (≥0.6) | missing`, and
+`overall = Σ(mastery · importance) / Σ(importance)`. It is the dashboard's
+readiness number with a per-skill breakdown attached.
+
+### Readiness prediction (`lib/prediction/timeline.ts`)
+
+No model call. Projects weeks-to-job-ready from remaining gap hours and the
+learner's stated `weeklyHours`, adjusted by observed pace from the event log,
+and emits a per-week series with a confidence band (`lower`/`upper`) and a
+job-ready line at 80%. Recomputed on every dashboard load, so it moves as the
+event log grows.
+
+### Verification interview (`lib/llm/interview.ts`, `/api/interview`)
+
+An alternative post-check. Gemini generates five scenario questions for the
+skill and, on submission, grades each answer 0–1 on accuracy and depth
+(structured output). Grading is server-side; the questions carry no answer
+key to the client. A mean ≥ 0.5 mints a `verification-interview` evidence
+record — higher-confidence than the multiple-choice post-check because the
+answers are free prose, but still not self-reported.
+
+### Evidence signature (`lib/crypto/signing.ts`)
+
+`addEvidence` computes `HMAC-SHA256(EVIDENCE_SIGNING_SECRET, canonical(record))`
+at mint time and stores it as `signature`. `serializeEvidence` fixes field
+order so the hash is stable. The public `/verify/<id>?sig=…` page recomputes
+it and reports intact / altered. A missing secret falls back to a well-known
+dev key (like `GEMINI_API_KEY`, not like `MONGODB_URI`) so completion never
+breaks locally — set a real value wherever a shared link must be unforgeable.
 
 ## Resource sourcing
 

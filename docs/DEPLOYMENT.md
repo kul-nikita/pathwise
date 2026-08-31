@@ -8,7 +8,7 @@ without any.
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `.github/workflows/ci.yml` | every push and PR | typecheck → lint → 90 unit tests → build with no secrets |
+| `.github/workflows/ci.yml` | every push and PR | typecheck → lint → 112 unit tests → build with no secrets |
 | `.github/workflows/deploy.yml` | after CI succeeds | deploys the default branch to production, every other branch to a preview URL |
 
 Deploy runs on `workflow_run` after CI, so **a red build is never deployed**.
@@ -45,6 +45,8 @@ following for Production *and* Preview. The names match `.env.example`:
 | `NEO4J_PASSWORD` | |
 | `QDRANT_URL` | |
 | `QDRANT_API_KEY` | |
+| `EVIDENCE_SIGNING_SECRET` | HMAC key for evidence signatures, checked by `/verify/<id>`. Optional — a well-known dev key is used when unset, so set a real random value if shared evidence links need to be unforgeable. |
+| `ADMIN_EMAILS` | Comma-separated emails allowed into `/admin`. Unset means the catalog is read-only for everyone. |
 
 Optional tuning:
 
